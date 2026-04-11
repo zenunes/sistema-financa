@@ -1,120 +1,200 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
+import { useEffect, useState } from 'react'
+import type { Session } from '@supabase/supabase-js'
+import { AuthView } from './components/AuthView'
+import { CategorySection } from './components/CategorySection'
+import { GoalSection } from './components/GoalSection'
+import { SummaryCards } from './components/SummaryCards'
+import { TransactionSection } from './components/TransactionSection'
+import { supabase } from './lib/supabase'
+import {
+  createCategory,
+  createGoal,
+  createTransaction,
+  deleteCategory,
+  deleteGoal,
+  deleteTransaction,
+  fetchFinanceData,
+} from './services/financeService'
+import type { Category, Goal, Transaction, TransactionType } from './types/finance'
 import './App.css'
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [session, setSession] = useState<Session | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+  const [transactions, setTransactions] = useState<Transaction[]>([])
+  const [categories, setCategories] = useState<Category[]>([])
+  const [goals, setGoals] = useState<Goal[]>([])
+
+  useEffect(() => {
+    let mounted = true
+
+    supabase.auth.getSession().then(({ data }) => {
+      if (!mounted) return
+      setSession(data.session)
+      setLoading(false)
+    })
+
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+      setSession(nextSession)
+    })
+
+    return () => {
+      mounted = false
+      listener.subscription.unsubscribe()
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!session?.user?.id) {
+      setTransactions([])
+      setCategories([])
+      setGoals([])
+      return
+    }
+
+    loadFinanceData(session.user.id)
+  }, [session?.user?.id])
+
+  async function loadFinanceData(userId: string) {
+    setError('')
+    setLoading(true)
+
+    try {
+      const data = await fetchFinanceData(userId)
+      setTransactions(data.transactions)
+      setCategories(data.categories)
+      setGoals(data.goals)
+    } catch (loadError) {
+      setError(loadError instanceof Error ? loadError.message : 'Erro ao carregar dados.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  async function handleCreateTransaction(params: {
+    description: string
+    amount: number
+    type: TransactionType
+    categoryId?: string
+    transactionDate: string
+  }) {
+    if (!session?.user?.id) return
+
+    try {
+      await createTransaction({ ...params, userId: session.user.id })
+      await loadFinanceData(session.user.id)
+    } catch (actionError) {
+      setError(actionError instanceof Error ? actionError.message : 'Erro ao criar lançamento.')
+    }
+  }
+
+  async function handleDeleteTransaction(id: string) {
+    if (!session?.user?.id) return
+
+    try {
+      await deleteTransaction(id)
+      await loadFinanceData(session.user.id)
+    } catch (actionError) {
+      setError(actionError instanceof Error ? actionError.message : 'Erro ao excluir lançamento.')
+    }
+  }
+
+  async function handleCreateCategory(params: { name: string; type: TransactionType }) {
+    if (!session?.user?.id) return
+
+    try {
+      await createCategory({ ...params, userId: session.user.id })
+      await loadFinanceData(session.user.id)
+    } catch (actionError) {
+      setError(actionError instanceof Error ? actionError.message : 'Erro ao criar categoria.')
+    }
+  }
+
+  async function handleDeleteCategory(id: string) {
+    if (!session?.user?.id) return
+
+    try {
+      await deleteCategory(id)
+      await loadFinanceData(session.user.id)
+    } catch (actionError) {
+      setError(actionError instanceof Error ? actionError.message : 'Erro ao excluir categoria.')
+    }
+  }
+
+  async function handleCreateGoal(params: {
+    title: string
+    targetAmount: number
+    currentAmount: number
+    dueDate?: string
+  }) {
+    if (!session?.user?.id) return
+
+    try {
+      await createGoal({ ...params, userId: session.user.id })
+      await loadFinanceData(session.user.id)
+    } catch (actionError) {
+      setError(actionError instanceof Error ? actionError.message : 'Erro ao criar meta.')
+    }
+  }
+
+  async function handleDeleteGoal(id: string) {
+    if (!session?.user?.id) return
+
+    try {
+      await deleteGoal(id)
+      await loadFinanceData(session.user.id)
+    } catch (actionError) {
+      setError(actionError instanceof Error ? actionError.message : 'Erro ao excluir meta.')
+    }
+  }
+
+  async function handleLogout() {
+    const { error: logoutError } = await supabase.auth.signOut()
+    if (logoutError) setError(logoutError.message)
+  }
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <main className="app-shell">
+      {!session ? (
+        <AuthView onAuthError={setError} />
+      ) : (
+        <>
+          <header className="topbar card">
+            <div>
+              <h1>Finanças Pessoais</h1>
+              <p className="muted">{session.user.email}</p>
+            </div>
+            <button type="button" onClick={handleLogout}>
+              Sair
+            </button>
+          </header>
 
-      <div className="ticks"></div>
+          {loading && <p className="status">Carregando dados...</p>}
+          {error && <p className="status error">{error}</p>}
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+          {!loading && (
+            <>
+              <SummaryCards transactions={transactions} goals={goals} />
+              <TransactionSection
+                categories={categories}
+                transactions={transactions}
+                onCreate={handleCreateTransaction}
+                onDelete={handleDeleteTransaction}
+              />
+              <div className="dual-grid">
+                <CategorySection
+                  categories={categories}
+                  onCreate={handleCreateCategory}
+                  onDelete={handleDeleteCategory}
+                />
+                <GoalSection goals={goals} onCreate={handleCreateGoal} onDelete={handleDeleteGoal} />
+              </div>
+            </>
+          )}
+        </>
+      )}
+    </main>
   )
 }
 
