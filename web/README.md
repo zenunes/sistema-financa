@@ -1,73 +1,51 @@
-# React + TypeScript + Vite
+# Sistema de Finanças Pessoais (Web Responsivo)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Aplicação web em `React + TypeScript + Vite` com backend no `Supabase`.
+Foco em uso individual, interface simples e responsiva para funcionar bem no navegador do iPhone e desktop.
 
-Currently, two official plugins are available:
+## MVP implementado
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- Autenticação com e-mail e senha.
+- Lançamentos de receitas e despesas.
+- Cadastro de categorias.
+- Cadastro e acompanhamento de metas.
+- Dashboard com saldo, totais e progresso.
 
-## React Compiler
+## Estrutura de dados no Supabase
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Execute o SQL em `supabase/schema.sql` no editor SQL do seu projeto Supabase.
 
-## Expanding the ESLint configuration
+Tabelas:
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- `categories`
+- `transactions`
+- `goals`
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+O script já inclui:
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+- criação das tabelas;
+- políticas de segurança (RLS) por usuário;
+- índices para consultas comuns.
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Variáveis de ambiente
+
+1. Copie `.env.example` para `.env`.
+2. Preencha:
+
+```env
+VITE_SUPABASE_URL=
+VITE_SUPABASE_ANON_KEY=
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Rodando localmente
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
+npm run dev
 ```
+
+## Próximos passos sugeridos
+
+- Adicionar recorrência de lançamentos.
+- Adicionar filtros por período.
+- Transformar em PWA para experiência próxima de app no iPhone.
