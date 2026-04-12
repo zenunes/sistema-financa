@@ -1,9 +1,17 @@
 :root {
-  --bg: #eef3ff;
-  --card-bg: #ffffff;
-  --border: #dbe5ff;
-  --text: #19233a;
-  --text-muted: #5f6f8b;
+  --primary: #3b82f6;
+  --primary-hover: #2563eb;
+  --accent: #8b5cf6;
+  --accent-hover: #7c3aed;
+  --bg: #f3f4f6;
+  --surface: #ffffff;
+  --surface-alt: #f9fafb;
+  --text: #1f2937;
+  --text-muted: #6b7280;
+  --border: #e5e7eb;
+  --danger: #ef4444;
+  --success: #10b981;
+  --radius: 12px;
   font-family:
     Inter,
     -apple-system,
