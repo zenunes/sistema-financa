@@ -59,7 +59,7 @@ export function RecurringSection({
           Despesas e Receitas Recorrentes
         </h2>
         <button type="button" className="accent" onClick={onGenerateMonth} disabled={generating}>
-          {generating ? 'Gerando...' : `⚡ Gerar para ${month}`}
+          {generating ? 'Gerando...' : `💸 Gerar para ${month}`}
         </button>
       </div>
       

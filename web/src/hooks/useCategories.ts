@@ -3,6 +3,37 @@ import { supabase } from '../lib/supabase'
 import type { Category, TransactionType } from '../types/finance'
 import { financeKeys } from './financeKeys'
 
+const DEFAULT_CATEGORIES: { name: string; type: TransactionType }[] = [
+  { name: 'Moradia', type: 'expense' },
+  { name: 'Alimentação', type: 'expense' },
+  { name: 'Transporte', type: 'expense' },
+  { name: 'Saúde', type: 'expense' },
+  { name: 'Educação', type: 'expense' },
+  { name: 'Lazer', type: 'expense' },
+  { name: 'Salário', type: 'income' },
+  { name: 'Investimentos', type: 'income' },
+]
+
+async function injectDefaultCategories(userId: string): Promise<Category[]> {
+  const categoriesToInsert = DEFAULT_CATEGORIES.map(cat => ({
+    ...cat,
+    user_id: userId,
+  }))
+
+  const { data, error } = await supabase
+    .from('categories')
+    .insert(categoriesToInsert)
+    .select()
+    .order('name', { ascending: true })
+
+  if (error) {
+    console.error('Falha ao injetar categorias padrão:', error)
+    return []
+  }
+
+  return (data ?? []) as Category[]
+}
+
 async function fetchCategories(userId: string) {
   const { data, error } = await supabase
     .from('categories')
@@ -11,7 +42,13 @@ async function fetchCategories(userId: string) {
     .order('name', { ascending: true })
 
   if (error) throw error
-  return (data ?? []) as Category[]
+
+  // Injeção silenciosa caso a busca retorne vazia
+  if (!data || data.length === 0) {
+    return await injectDefaultCategories(userId)
+  }
+
+  return data as Category[]
 }
 
 export function useCategories(userId: string | undefined) {
