@@ -1,33 +1,39 @@
 import { useMemo, useState, type FormEvent } from 'react'
-import { formatCurrency, formatDate } from '../lib/format'
-import type { Category, Transaction, TransactionType } from '../types/finance'
+import { formatCurrency } from '../lib/format'
+import type { Category, RecurringTransaction, TransactionType } from '../types/finance'
 
-interface TransactionSectionProps {
+interface RecurringSectionProps {
   categories: Category[]
-  transactions: Transaction[]
+  recurringTransactions: RecurringTransaction[]
+  month: string
+  generating: boolean
+  onGenerateMonth: () => Promise<void>
   onCreate: (params: {
     description: string
     amount: number
     type: TransactionType
+    dueDay: number
     categoryId?: string
-    transactionDate: string
   }) => Promise<void>
+  onToggleActive: (id: string, active: boolean) => Promise<void>
   onDelete: (id: string) => Promise<void>
 }
 
-export function TransactionSection({
+export function RecurringSection({
   categories,
-  transactions,
+  recurringTransactions,
+  month,
+  generating,
+  onGenerateMonth,
   onCreate,
+  onToggleActive,
   onDelete,
-}: TransactionSectionProps) {
+}: RecurringSectionProps) {
   const [description, setDescription] = useState('')
   const [amount, setAmount] = useState('')
   const [type, setType] = useState<TransactionType>('expense')
+  const [dueDay, setDueDay] = useState('10')
   const [categoryId, setCategoryId] = useState('')
-  const [transactionDate, setTransactionDate] = useState(
-    new Date().toISOString().slice(0, 10),
-  )
   const [submitting, setSubmitting] = useState(false)
 
   const filteredCategories = useMemo(
@@ -37,7 +43,7 @@ export function TransactionSection({
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    if (!description || !amount) return
+    if (!description || !amount || !dueDay) return
     setSubmitting(true)
 
     try {
@@ -45,8 +51,8 @@ export function TransactionSection({
         description,
         amount: Number(amount),
         type,
+        dueDay: Number(dueDay),
         categoryId: categoryId || undefined,
-        transactionDate,
       })
       setDescription('')
       setAmount('')
@@ -58,10 +64,16 @@ export function TransactionSection({
 
   return (
     <section className="card">
-      <h2>
-        <span className="badge-icon badge-blue">L</span>
-        Lançamentos
-      </h2>
+      <div className="section-head">
+        <h2>
+          <span className="badge-icon badge-purple">R</span>
+          Despesas recorrentes
+        </h2>
+        <button type="button" onClick={onGenerateMonth} disabled={generating}>
+          {generating ? 'Gerando...' : `Gerar ${month}`}
+        </button>
+      </div>
+
       <form className="form-grid" onSubmit={handleSubmit}>
         <label>
           Descrição
@@ -69,7 +81,7 @@ export function TransactionSection({
             required
             value={description}
             onChange={(event) => setDescription(event.target.value)}
-            placeholder="Ex: Mercado"
+            placeholder="Ex: Conta de água"
           />
         </label>
         <label>
@@ -81,7 +93,6 @@ export function TransactionSection({
             step="0.01"
             value={amount}
             onChange={(event) => setAmount(event.target.value)}
-            placeholder="0,00"
           />
         </label>
         <label>
@@ -90,6 +101,17 @@ export function TransactionSection({
             <option value="expense">Despesa</option>
             <option value="income">Receita</option>
           </select>
+        </label>
+        <label>
+          Dia de vencimento
+          <input
+            required
+            type="number"
+            min="1"
+            max="31"
+            value={dueDay}
+            onChange={(event) => setDueDay(event.target.value)}
+          />
         </label>
         <label>
           Categoria
@@ -102,61 +124,34 @@ export function TransactionSection({
             ))}
           </select>
         </label>
-        <label>
-          Data
-          <input
-            required
-            type="date"
-            value={transactionDate}
-            onChange={(event) => setTransactionDate(event.target.value)}
-          />
-        </label>
         <button type="submit" disabled={submitting}>
-          {submitting ? 'Salvando...' : 'Adicionar lançamento'}
+          {submitting ? 'Salvando...' : 'Adicionar recorrência'}
         </button>
       </form>
 
-      <div className="table-wrapper">
-        <table>
-          <thead>
-            <tr>
-              <th>Descrição</th>
-              <th>Tipo</th>
-              <th>Categoria</th>
-              <th>Data</th>
-              <th>Valor</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {transactions.length === 0 && (
-              <tr>
-                <td colSpan={6} className="empty-row">
-                  Nenhum lançamento cadastrado.
-                </td>
-              </tr>
-            )}
-            {transactions.map((transaction) => (
-              <tr key={transaction.id}>
-                <td>{transaction.description}</td>
-                <td>{transaction.type === 'income' ? 'Receita' : 'Despesa'}</td>
-                <td>{transaction.category?.name ?? '-'}</td>
-                <td>{formatDate(transaction.transaction_date)}</td>
-                <td>{formatCurrency(Number(transaction.amount))}</td>
-                <td>
-                  <button
-                    type="button"
-                    className="danger"
-                    onClick={() => onDelete(transaction.id)}
-                  >
-                    Excluir
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <ul className="chip-list recurring-list">
+        {recurringTransactions.length === 0 && (
+          <li className="muted">Nenhuma recorrência cadastrada.</li>
+        )}
+        {recurringTransactions.map((item) => (
+          <li key={item.id}>
+            <span>{item.description}</span>
+            <small>{formatCurrency(Number(item.amount))}</small>
+            <small>Dia {item.due_day}</small>
+            <small>{item.active ? 'Ativa' : 'Pausada'}</small>
+            <button
+              type="button"
+              className="ghost"
+              onClick={() => onToggleActive(item.id, !item.active)}
+            >
+              {item.active ? 'Pausar' : 'Ativar'}
+            </button>
+            <button type="button" className="danger" onClick={() => onDelete(item.id)}>
+              Excluir
+            </button>
+          </li>
+        ))}
+      </ul>
     </section>
   )
 }

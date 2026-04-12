@@ -1,17 +1,18 @@
 .app-shell {
   width: min(1100px, 100%);
   margin: 0 auto;
-  padding: 20px;
+  padding: 24px 16px 32px;
   box-sizing: border-box;
   display: grid;
-  gap: 16px;
+  gap: 18px;
 }
 
 .card {
   background: var(--card-bg);
   border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 16px;
+  border-radius: 16px;
+  padding: 18px;
+  box-shadow: 0 10px 30px rgba(30, 46, 90, 0.06);
 }
 
 .topbar {
@@ -19,6 +20,18 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+  background: linear-gradient(120deg, #1f4ed8, #7c3aed);
+  color: #fff;
+}
+
+.topbar .muted {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.topbar button {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(2px);
 }
 
 .summary-grid {
@@ -55,6 +68,11 @@
   color: #8a1f2d;
 }
 
+.status.success {
+  background: #ebf9ef;
+  color: #0f6c35;
+}
+
 .muted {
   color: var(--text-muted);
 }
@@ -86,9 +104,10 @@ button {
 
 button {
   cursor: pointer;
-  background: #2c6bed;
+  background: #3b82f6;
   color: #fff;
-  border-color: #2c6bed;
+  border-color: #3b82f6;
+  font-weight: 600;
 }
 
 button:disabled {
@@ -108,6 +127,13 @@ button:disabled {
   background: #fff;
   color: #c42e3c;
   border-color: #f2c2c8;
+  padding: 6px 10px;
+}
+
+.ghost {
+  background: #f8f3ff;
+  color: #5b22b8;
+  border-color: #e6d7ff;
   padding: 6px 10px;
 }
 
@@ -157,6 +183,10 @@ td {
   color: var(--text-muted);
 }
 
+.recurring-list li {
+  flex-wrap: wrap;
+}
+
 .goal-grid {
   margin-top: 14px;
   display: grid;
@@ -192,7 +222,55 @@ td {
 .progress-bar span {
   display: block;
   height: 100%;
-  background: #2c6bed;
+  background: linear-gradient(90deg, #4f46e5, #06b6d4);
+}
+
+.summary-card h2,
+.card h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.summary-card strong {
+  font-size: 1.1rem;
+}
+
+.badge-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  color: #fff;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.badge-blue {
+  background: #2563eb;
+}
+
+.badge-green {
+  background: #059669;
+}
+
+.badge-red {
+  background: #dc2626;
+}
+
+.badge-purple {
+  background: #7c3aed;
+}
+
+.section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 @media (min-width: 700px) {

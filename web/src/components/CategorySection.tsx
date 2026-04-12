@@ -27,7 +27,10 @@ export function CategorySection({ categories, onCreate, onDelete }: CategorySect
 
   return (
     <section className="card">
-      <h2>Categorias</h2>
+      <h2>
+        <span className="badge-icon badge-green">C</span>
+        Categorias
+      </h2>
       <form className="form-grid inline" onSubmit={handleSubmit}>
         <label>
           Nome
