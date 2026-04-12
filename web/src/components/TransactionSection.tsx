@@ -83,7 +83,13 @@ export function TransactionSection({
         </label>
         <label>
           Tipo
-          <select value={type} onChange={(event) => setType(event.target.value as TransactionType)}>
+          <select
+            value={type}
+            onChange={(event) => {
+              setType(event.target.value as TransactionType)
+              setCategoryId('')
+            }}
+          >
             <option value="expense">Despesa</option>
             <option value="income">Receita</option>
           </select>

@@ -1,157 +1,37 @@
-import { useEffect, useState } from 'react'
-import type { Session } from '@supabase/supabase-js'
+import { useAuth } from './hooks/useAuth'
+import { useFinanceData } from './hooks/useFinanceData'
 import { AuthView } from './components/AuthView'
 import { CategorySection } from './components/CategorySection'
 import { GoalSection } from './components/GoalSection'
 import { SummaryCards } from './components/SummaryCards'
 import { TransactionSection } from './components/TransactionSection'
-import { supabase } from './lib/supabase'
-import {
-  createCategory,
-  createGoal,
-  createTransaction,
-  deleteCategory,
-  deleteGoal,
-  deleteTransaction,
-  fetchFinanceData,
-} from './services/financeService'
-import type { Category, Goal, Transaction, TransactionType } from './types/finance'
 import './App.css'
 
 function App() {
-  const [session, setSession] = useState<Session | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
-  const [transactions, setTransactions] = useState<Transaction[]>([])
-  const [categories, setCategories] = useState<Category[]>([])
-  const [goals, setGoals] = useState<Goal[]>([])
+  const { session, loadingAuth, handleLogout } = useAuth()
+  const {
+    loading,
+    error,
+    setError,
+    transactions,
+    categories,
+    goals,
+    handleCreateTransaction,
+    handleDeleteTransaction,
+    handleCreateCategory,
+    handleDeleteCategory,
+    handleCreateGoal,
+    handleDeleteGoal,
+  } = useFinanceData(session?.user?.id)
 
-  useEffect(() => {
-    let mounted = true
+  const isInitialLoading = loadingAuth || (session && loading)
 
-    supabase.auth.getSession().then(({ data }) => {
-      if (!mounted) return
-      setSession(data.session)
-      setLoading(false)
-    })
-
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, nextSession) => {
-      setSession(nextSession)
-    })
-
-    return () => {
-      mounted = false
-      listener.subscription.unsubscribe()
-    }
-  }, [])
-
-  useEffect(() => {
-    if (!session?.user?.id) {
-      setTransactions([])
-      setCategories([])
-      setGoals([])
-      return
-    }
-
-    loadFinanceData(session.user.id)
-  }, [session?.user?.id])
-
-  async function loadFinanceData(userId: string) {
-    setError('')
-    setLoading(true)
-
+  async function onLogout() {
     try {
-      const data = await fetchFinanceData(userId)
-      setTransactions(data.transactions)
-      setCategories(data.categories)
-      setGoals(data.goals)
-    } catch (loadError) {
-      setError(loadError instanceof Error ? loadError.message : 'Erro ao carregar dados.')
-    } finally {
-      setLoading(false)
+      await handleLogout()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erro ao sair.')
     }
-  }
-
-  async function handleCreateTransaction(params: {
-    description: string
-    amount: number
-    type: TransactionType
-    categoryId?: string
-    transactionDate: string
-  }) {
-    if (!session?.user?.id) return
-
-    try {
-      await createTransaction({ ...params, userId: session.user.id })
-      await loadFinanceData(session.user.id)
-    } catch (actionError) {
-      setError(actionError instanceof Error ? actionError.message : 'Erro ao criar lançamento.')
-    }
-  }
-
-  async function handleDeleteTransaction(id: string) {
-    if (!session?.user?.id) return
-
-    try {
-      await deleteTransaction(id)
-      await loadFinanceData(session.user.id)
-    } catch (actionError) {
-      setError(actionError instanceof Error ? actionError.message : 'Erro ao excluir lançamento.')
-    }
-  }
-
-  async function handleCreateCategory(params: { name: string; type: TransactionType }) {
-    if (!session?.user?.id) return
-
-    try {
-      await createCategory({ ...params, userId: session.user.id })
-      await loadFinanceData(session.user.id)
-    } catch (actionError) {
-      setError(actionError instanceof Error ? actionError.message : 'Erro ao criar categoria.')
-    }
-  }
-
-  async function handleDeleteCategory(id: string) {
-    if (!session?.user?.id) return
-
-    try {
-      await deleteCategory(id)
-      await loadFinanceData(session.user.id)
-    } catch (actionError) {
-      setError(actionError instanceof Error ? actionError.message : 'Erro ao excluir categoria.')
-    }
-  }
-
-  async function handleCreateGoal(params: {
-    title: string
-    targetAmount: number
-    currentAmount: number
-    dueDate?: string
-  }) {
-    if (!session?.user?.id) return
-
-    try {
-      await createGoal({ ...params, userId: session.user.id })
-      await loadFinanceData(session.user.id)
-    } catch (actionError) {
-      setError(actionError instanceof Error ? actionError.message : 'Erro ao criar meta.')
-    }
-  }
-
-  async function handleDeleteGoal(id: string) {
-    if (!session?.user?.id) return
-
-    try {
-      await deleteGoal(id)
-      await loadFinanceData(session.user.id)
-    } catch (actionError) {
-      setError(actionError instanceof Error ? actionError.message : 'Erro ao excluir meta.')
-    }
-  }
-
-  async function handleLogout() {
-    const { error: logoutError } = await supabase.auth.signOut()
-    if (logoutError) setError(logoutError.message)
   }
 
   return (
@@ -165,15 +45,15 @@ function App() {
               <h1>Finanças Pessoais</h1>
               <p className="muted">{session.user.email}</p>
             </div>
-            <button type="button" onClick={handleLogout}>
+            <button type="button" onClick={onLogout}>
               Sair
             </button>
           </header>
 
-          {loading && <p className="status">Carregando dados...</p>}
+          {isInitialLoading && <p className="status">Carregando dados...</p>}
           {error && <p className="status error">{error}</p>}
 
-          {!loading && (
+          {!isInitialLoading && (
             <>
               <SummaryCards transactions={transactions} goals={goals} />
               <TransactionSection

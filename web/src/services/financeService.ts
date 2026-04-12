@@ -1,8 +1,16 @@
 import { supabase } from '../lib/supabase'
 import type { Category, Goal, Transaction, TransactionType } from '../types/finance'
 
+/**
+ * Busca todos os dados financeiros do usuário simultaneamente.
+ * Utiliza Promise.allSettled para garantir que uma falha isolada
+ * (ex: erro ao buscar metas) não impeça o carregamento de outras entidades.
+ *
+ * @param userId - O ID do usuário autenticado no Supabase.
+ * @returns Um objeto contendo arrays de transações, categorias e metas.
+ */
 export async function fetchFinanceData(userId: string) {
-  const [transactionsResult, categoriesResult, goalsResult] = await Promise.all([
+  const [transactionsResult, categoriesResult, goalsResult] = await Promise.allSettled([
     supabase
       .from('transactions')
       .select('*, category:categories(*)')
@@ -20,17 +28,31 @@ export async function fetchFinanceData(userId: string) {
       .order('created_at', { ascending: false }),
   ])
 
-  if (transactionsResult.error) throw transactionsResult.error
-  if (categoriesResult.error) throw categoriesResult.error
-  if (goalsResult.error) throw goalsResult.error
+  const getSafeData = <T>(
+    result: PromiseSettledResult<{ data: any; error: any }>,
+    label: string,
+  ): T[] => {
+    if (result.status === 'fulfilled') {
+      if (result.value.error) {
+        console.error(`Erro ao buscar ${label}:`, result.value.error)
+        return []
+      }
+      return (result.value.data ?? []) as T[]
+    }
+    console.error(`Falha na promessa de ${label}:`, result.reason)
+    return []
+  }
 
   return {
-    transactions: (transactionsResult.data ?? []) as Transaction[],
-    categories: (categoriesResult.data ?? []) as Category[],
-    goals: (goalsResult.data ?? []) as Goal[],
+    transactions: getSafeData<Transaction>(transactionsResult, 'transações'),
+    categories: getSafeData<Category>(categoriesResult, 'categorias'),
+    goals: getSafeData<Goal>(goalsResult, 'metas'),
   }
 }
 
+/**
+ * Cria uma nova transação associada ao usuário.
+ */
 export async function createTransaction(params: {
   userId: string
   description: string
@@ -51,6 +73,9 @@ export async function createTransaction(params: {
   if (error) throw error
 }
 
+/**
+ * Exclui uma transação através do seu identificador.
+ */
 export async function deleteTransaction(id: string) {
   const { error } = await supabase.from('transactions').delete().eq('id', id)
   if (error) throw error
