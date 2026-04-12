@@ -8,11 +8,28 @@
 }
 
 .card {
-  background: var(--card-bg);
+  background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 18px;
-  box-shadow: 0 10px 30px rgba(30, 46, 90, 0.06);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+/* Destaque para Recorrências */
+.card-recurring {
+  border-top: 4px solid var(--accent);
+  background: linear-gradient(to bottom, rgba(139, 92, 246, 0.02), var(--surface));
+  box-shadow: 0 4px 6px -1px rgba(139, 92, 246, 0.1), 0 2px 4px -1px rgba(139, 92, 246, 0.06);
+}
+
+.alert-info {
+  background-color: rgba(59, 130, 246, 0.1);
+  color: var(--primary);
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  margin-bottom: 1.5rem;
+  border-left: 4px solid var(--primary);
 }
 
 .topbar {
@@ -113,6 +130,19 @@ button {
 button:disabled {
   opacity: 0.7;
   cursor: not-allowed;
+}
+
+button.accent {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+  box-shadow: 0 4px 6px -1px rgba(139, 92, 246, 0.4);
+  transition: all 0.2s ease;
+}
+button.accent:hover {
+  background: var(--accent-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 8px -1px rgba(139, 92, 246, 0.5);
 }
 
 .link-button {

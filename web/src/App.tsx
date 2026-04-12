@@ -1,45 +1,191 @@
 import { useAuth } from './hooks/useAuth'
-import { useFinanceData } from './hooks/useFinanceData'
+import { useTransactions } from './hooks/useTransactions'
+import { useCategories } from './hooks/useCategories'
+import { useGoals } from './hooks/useGoals'
+import { useRecurringTransactions } from './hooks/useRecurringTransactions'
 import { AuthView } from './components/AuthView'
 import { CategorySection } from './components/CategorySection'
 import { GoalSection } from './components/GoalSection'
 import { RecurringSection } from './components/RecurringSection'
 import { SummaryCards } from './components/SummaryCards'
+import { DashboardChart } from './components/DashboardChart'
 import { TransactionSection } from './components/TransactionSection'
+import { useState } from 'react'
+import type { TransactionType } from './types/finance'
 import './App.css'
 
 function App() {
   const { session, loadingAuth, handleLogout } = useAuth()
-  const {
-    loading,
-    error,
-    setError,
-    info,
-    transactions,
-    categories,
-    goals,
-    recurringTransactions,
-    generatingRecurring,
-    currentMonth,
-    handleCreateTransaction,
-    handleDeleteTransaction,
-    handleCreateCategory,
-    handleDeleteCategory,
-    handleCreateGoal,
-    handleDeleteGoal,
-    handleCreateRecurringTransaction,
-    handleToggleRecurringTransaction,
-    handleDeleteRecurringTransaction,
-    handleGenerateRecurringForMonth,
-  } = useFinanceData(session?.user?.id)
+  const userId = session?.user?.id
 
-  const isInitialLoading = loadingAuth || (session && loading)
+  const [error, setError] = useState('')
+  const [info, setInfo] = useState('')
+  const currentMonth = new Date().toISOString().slice(0, 7)
+
+  const {
+    transactions,
+    isLoading: loadingTransactions,
+    createTransaction,
+    deleteTransaction,
+    isCreating: creatingTx,
+  } = useTransactions(userId)
+
+  const {
+    categories,
+    isLoading: loadingCategories,
+    createCategory,
+    deleteCategory,
+  } = useCategories(userId)
+
+  const {
+    goals,
+    isLoading: loadingGoals,
+    createGoal,
+    deleteGoal,
+  } = useGoals(userId)
+
+  const {
+    recurringTransactions,
+    isLoading: loadingRecurring,
+    createRecurringTransaction,
+    toggleRecurringTransaction,
+    deleteRecurringTransaction,
+    generateRecurringTransactions,
+    isGenerating,
+  } = useRecurringTransactions(userId)
+
+  const isInitialLoading =
+    loadingAuth ||
+    (session && (loadingTransactions || loadingCategories || loadingGoals || loadingRecurring))
 
   async function onLogout() {
     try {
       await handleLogout()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao sair.')
+    }
+  }
+
+  // --- Wrappers para gerenciar o estado de erro/sucesso ---
+
+  async function handleCreateTransaction(params: {
+    description: string
+    amount: number
+    type: TransactionType
+    categoryId?: string
+    transactionDate: string
+  }) {
+    setError(''); setInfo('')
+    try {
+      await createTransaction(params)
+      setInfo('Lançamento criado com sucesso.')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erro ao criar lançamento.')
+    }
+  }
+
+  async function handleDeleteTransaction(id: string) {
+    setError(''); setInfo('')
+    try {
+      await deleteTransaction(id)
+      setInfo('Lançamento excluído.')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erro ao excluir lançamento.')
+    }
+  }
+
+  async function handleCreateCategory(params: { name: string; type: TransactionType }) {
+    setError(''); setInfo('')
+    try {
+      await createCategory(params)
+      setInfo('Categoria criada com sucesso.')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erro ao criar categoria.')
+    }
+  }
+
+  async function handleDeleteCategory(id: string) {
+    setError(''); setInfo('')
+    try {
+      await deleteCategory(id)
+      setInfo('Categoria excluída.')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erro ao excluir categoria.')
+    }
+  }
+
+  async function handleCreateGoal(params: {
+    title: string
+    targetAmount: number
+    currentAmount: number
+    dueDate?: string
+  }) {
+    setError(''); setInfo('')
+    try {
+      await createGoal(params)
+      setInfo('Meta criada com sucesso.')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erro ao criar meta.')
+    }
+  }
+
+  async function handleDeleteGoal(id: string) {
+    setError(''); setInfo('')
+    try {
+      await deleteGoal(id)
+      setInfo('Meta excluída.')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erro ao excluir meta.')
+    }
+  }
+
+  async function handleCreateRecurring(params: {
+    description: string
+    amount: number
+    type: TransactionType
+    dueDay: number
+    categoryId?: string
+  }) {
+    setError(''); setInfo('')
+    try {
+      await createRecurringTransaction(params)
+      setInfo('Recorrência criada com sucesso.')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erro ao criar recorrência.')
+    }
+  }
+
+  async function handleToggleRecurring(id: string, active: boolean) {
+    setError(''); setInfo('')
+    try {
+      await toggleRecurringTransaction({ id, active })
+      setInfo(active ? 'Recorrência ativada.' : 'Recorrência pausada.')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erro ao atualizar recorrência.')
+    }
+  }
+
+  async function handleDeleteRecurring(id: string) {
+    setError(''); setInfo('')
+    try {
+      await deleteRecurringTransaction(id)
+      setInfo('Recorrência excluída.')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erro ao excluir recorrência.')
+    }
+  }
+
+  async function handleGenerateRecurring() {
+    setError(''); setInfo('')
+    try {
+      const count = await generateRecurringTransactions(currentMonth)
+      setInfo(
+        count > 0
+          ? `${count} lançamento(s) recorrente(s) gerado(s) para ${currentMonth}.`
+          : `Sem novos lançamentos recorrentes para ${currentMonth}.`
+      )
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erro ao gerar recorrências.')
     }
   }
 
@@ -66,29 +212,39 @@ function App() {
           {!isInitialLoading && (
             <>
               <SummaryCards transactions={transactions} goals={goals} />
+              
+              <DashboardChart transactions={transactions} currentMonth={currentMonth} />
+
               <RecurringSection
                 categories={categories}
                 recurringTransactions={recurringTransactions}
                 month={currentMonth}
-                generating={generatingRecurring}
-                onGenerateMonth={handleGenerateRecurringForMonth}
-                onCreate={handleCreateRecurringTransaction}
-                onToggleActive={handleToggleRecurringTransaction}
-                onDelete={handleDeleteRecurringTransaction}
+                generating={isGenerating}
+                onGenerateMonth={handleGenerateRecurring}
+                onCreate={handleCreateRecurring}
+                onToggleActive={handleToggleRecurring}
+                onDelete={handleDeleteRecurring}
               />
+              
               <TransactionSection
                 categories={categories}
                 transactions={transactions}
                 onCreate={handleCreateTransaction}
                 onDelete={handleDeleteTransaction}
+                isCreating={creatingTx}
               />
+              
               <div className="dual-grid">
                 <CategorySection
                   categories={categories}
                   onCreate={handleCreateCategory}
                   onDelete={handleDeleteCategory}
                 />
-                <GoalSection goals={goals} onCreate={handleCreateGoal} onDelete={handleDeleteGoal} />
+                <GoalSection 
+                  goals={goals} 
+                  onCreate={handleCreateGoal} 
+                  onDelete={handleDeleteGoal} 
+                />
               </div>
             </>
           )}
