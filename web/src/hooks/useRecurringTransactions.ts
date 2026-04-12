@@ -26,7 +26,7 @@ export async function generateRecurringTransactionsForMonth(userId: string, mont
     .eq('user_id', userId)
     .eq('active', true)
 
-  if (recurringError) throw recurringError
+  if (recurringError) throw new Error(`Falha ao buscar recorrências ativas: ${recurringError.message}`)
   if (!recurringData || recurringData.length === 0) return 0
 
   const recurringIds = recurringData.map((item) => item.id)
@@ -35,9 +35,10 @@ export async function generateRecurringTransactionsForMonth(userId: string, mont
     .select('recurring_source_id')
     .eq('user_id', userId)
     .eq('recurrence_month', monthStartText)
+    .not('recurring_source_id', 'is', null)
     .in('recurring_source_id', recurringIds)
 
-  if (existingError) throw existingError
+  if (existingError) throw new Error(`Falha ao verificar transações existentes: ${existingError.message}`)
 
   const existingIds = new Set(
     (existingData ?? [])
@@ -55,8 +56,8 @@ export async function generateRecurringTransactionsForMonth(userId: string, mont
 
       return {
         user_id: userId,
-        category_id: item.category_id ?? null,
-        recurring_source_id: item.id,
+        category_id: item.category_id || null,
+        recurring_source_id: item.id || null,
         recurrence_month: monthStartText,
         description: item.description,
         amount: item.amount,
@@ -68,7 +69,7 @@ export async function generateRecurringTransactionsForMonth(userId: string, mont
   if (inserts.length === 0) return 0
 
   const { error: insertError } = await supabase.from('transactions').insert(inserts)
-  if (insertError) throw insertError
+  if (insertError) throw new Error(`Falha ao inserir os novos lançamentos recorrentes: ${insertError.message}`)
 
   return inserts.length
 }

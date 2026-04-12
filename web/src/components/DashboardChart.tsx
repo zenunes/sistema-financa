@@ -52,8 +52,8 @@ export function DashboardChart({ transactions, currentMonth }: DashboardChartPro
               width={80}
             />
             <Tooltip
-              formatter={(value: any) => [formatCurrency(Number(value)), '']}
-              labelFormatter={(label) => `Dia ${label}`}
+              formatter={(value: any) => [formatCurrency(Number(value || 0)), '']}
+              labelFormatter={(label: any) => `Dia ${label}`}
               contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
             />
             <Legend wrapperStyle={{ paddingTop: '20px' }} />
