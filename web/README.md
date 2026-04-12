@@ -26,6 +26,11 @@ O script já inclui:
 - criação das tabelas;
 - políticas de segurança (RLS) por usuário;
 - índices para consultas comuns.
+- suporte a recorrências mensais sem duplicação por mês.
+
+## Gestão de melhorias
+
+Use `docs/melhorias-checklist.md` como painel de evolução do projeto.
 
 ## Variáveis de ambiente
 

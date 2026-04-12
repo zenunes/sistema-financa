@@ -43,7 +43,10 @@ export function GoalSection({ goals, onCreate, onDelete }: GoalSectionProps) {
 
   return (
     <section className="card">
-      <h2>Metas</h2>
+      <h2>
+        <span className="badge-icon badge-purple">M</span>
+        Metas
+      </h2>
       <form className="form-grid" onSubmit={handleSubmit}>
         <label>
           Título

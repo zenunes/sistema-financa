@@ -58,7 +58,10 @@ export function TransactionSection({
 
   return (
     <section className="card">
-      <h2>Lançamentos</h2>
+      <h2>
+        <span className="badge-icon badge-blue">L</span>
+        Lançamentos
+      </h2>
       <form className="form-grid" onSubmit={handleSubmit}>
         <label>
           Descrição

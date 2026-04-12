@@ -12,10 +12,25 @@ export interface Transaction {
   id: string
   user_id: string
   category_id: string | null
+  recurring_source_id: string | null
+  recurrence_month: string | null
   description: string
   amount: number
   type: TransactionType
   transaction_date: string
+  created_at: string
+  category?: Category | null
+}
+
+export interface RecurringTransaction {
+  id: string
+  user_id: string
+  category_id: string | null
+  description: string
+  amount: number
+  type: TransactionType
+  due_day: number
+  active: boolean
   created_at: string
   category?: Category | null
 }
@@ -34,4 +49,5 @@ export interface FinanceData {
   transactions: Transaction[]
   categories: Category[]
   goals: Goal[]
+  recurringTransactions: RecurringTransaction[]
 }

@@ -3,6 +3,7 @@ import { useFinanceData } from './hooks/useFinanceData'
 import { AuthView } from './components/AuthView'
 import { CategorySection } from './components/CategorySection'
 import { GoalSection } from './components/GoalSection'
+import { RecurringSection } from './components/RecurringSection'
 import { SummaryCards } from './components/SummaryCards'
 import { TransactionSection } from './components/TransactionSection'
 import './App.css'
@@ -13,15 +14,23 @@ function App() {
     loading,
     error,
     setError,
+    info,
     transactions,
     categories,
     goals,
+    recurringTransactions,
+    generatingRecurring,
+    currentMonth,
     handleCreateTransaction,
     handleDeleteTransaction,
     handleCreateCategory,
     handleDeleteCategory,
     handleCreateGoal,
     handleDeleteGoal,
+    handleCreateRecurringTransaction,
+    handleToggleRecurringTransaction,
+    handleDeleteRecurringTransaction,
+    handleGenerateRecurringForMonth,
   } = useFinanceData(session?.user?.id)
 
   const isInitialLoading = loadingAuth || (session && loading)
@@ -52,10 +61,21 @@ function App() {
 
           {isInitialLoading && <p className="status">Carregando dados...</p>}
           {error && <p className="status error">{error}</p>}
+          {!error && info && <p className="status success">{info}</p>}
 
           {!isInitialLoading && (
             <>
               <SummaryCards transactions={transactions} goals={goals} />
+              <RecurringSection
+                categories={categories}
+                recurringTransactions={recurringTransactions}
+                month={currentMonth}
+                generating={generatingRecurring}
+                onGenerateMonth={handleGenerateRecurringForMonth}
+                onCreate={handleCreateRecurringTransaction}
+                onToggleActive={handleToggleRecurringTransaction}
+                onDelete={handleDeleteRecurringTransaction}
+              />
               <TransactionSection
                 categories={categories}
                 transactions={transactions}

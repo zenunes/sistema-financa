@@ -19,20 +19,32 @@ export function SummaryCards({ transactions, goals }: SummaryCardsProps) {
 
   return (
     <section className="summary-grid">
-      <article className="card">
-        <h2>Saldo</h2>
+      <article className="card summary-card">
+        <h2>
+          <span className="badge-icon badge-blue">$</span>
+          Saldo
+        </h2>
         <strong>{formatCurrency(balance)}</strong>
       </article>
-      <article className="card">
-        <h2>Receitas</h2>
+      <article className="card summary-card">
+        <h2>
+          <span className="badge-icon badge-green">+</span>
+          Receitas
+        </h2>
         <strong>{formatCurrency(income)}</strong>
       </article>
-      <article className="card">
-        <h2>Despesas</h2>
+      <article className="card summary-card">
+        <h2>
+          <span className="badge-icon badge-red">-</span>
+          Despesas
+        </h2>
         <strong>{formatCurrency(expense)}</strong>
       </article>
-      <article className="card">
-        <h2>Metas</h2>
+      <article className="card summary-card">
+        <h2>
+          <span className="badge-icon badge-purple">G</span>
+          Metas
+        </h2>
         <strong>
           {formatCurrency(goalCurrent)} / {formatCurrency(goalTarget)}
         </strong>

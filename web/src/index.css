@@ -1,9 +1,9 @@
 :root {
-  --bg: #f6f7fb;
+  --bg: #eef3ff;
   --card-bg: #ffffff;
-  --border: #dde3f0;
-  --text: #1d2738;
-  --text-muted: #637087;
+  --border: #dbe5ff;
+  --text: #19233a;
+  --text-muted: #5f6f8b;
   font-family:
     Inter,
     -apple-system,
@@ -22,7 +22,7 @@
 body {
   margin: 0;
   color: var(--text);
-  background: var(--bg);
+  background: radial-gradient(circle at top left, #e7eeff, var(--bg) 35%);
 }
 
 h1,
