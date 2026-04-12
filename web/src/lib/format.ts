@@ -8,9 +8,7 @@ export function formatCurrency(value: number) {
 export function formatDate(dateValue: string | null) {
   if (!dateValue) return '-'
 
-  const [year, month, day] = dateValue.split('T')[0].split('-').map(Number)
-  const date = new Date(year, month - 1, day)
-  
+  const date = new Date(dateValue)
   if (Number.isNaN(date.getTime())) return dateValue
 
   return new Intl.DateTimeFormat('pt-BR').format(date)
