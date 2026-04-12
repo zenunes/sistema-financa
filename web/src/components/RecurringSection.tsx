@@ -55,11 +55,9 @@ export function RecurringSection({
   return (
     <section className="card card-recurring" style={{ marginBottom: '2rem' }}>
       <div className="card-header">
-        <h2>
-          Despesas e Receitas Recorrentes
-        </h2>
+        <h2>Despesas e Receitas Recorrentes</h2>
         <button type="button" className="accent" onClick={onGenerateMonth} disabled={generating}>
-          {generating ? 'Gerando...' : `💸 Gerar para ${month}`}
+          {generating ? 'Gerando...' : `🏦 Gerar para ${month}`}
         </button>
       </div>
       
