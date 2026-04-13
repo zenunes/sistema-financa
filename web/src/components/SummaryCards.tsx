@@ -4,16 +4,29 @@ import { formatCurrency } from '../lib/format'
 interface SummaryCardsProps {
   transactions: Transaction[]
   goals: Goal[]
+  currentMonth: string
 }
 
-export function SummaryCards({ transactions, goals }: SummaryCardsProps) {
-  const income = transactions
+export function SummaryCards({ transactions, goals, currentMonth }: SummaryCardsProps) {
+  const currentMonthTransactions = transactions.filter(
+    (t) => t.transaction_date.startsWith(currentMonth)
+  )
+
+  const income = currentMonthTransactions
     .filter((transaction) => transaction.type === 'income' && transaction.status === 'paid')
     .reduce((total, transaction) => total + Number(transaction.amount), 0)
-  const expense = transactions
+  const expense = currentMonthTransactions
     .filter((transaction) => transaction.type === 'expense' && transaction.status === 'paid')
     .reduce((total, transaction) => total + Number(transaction.amount), 0)
-  const balance = income - expense
+  
+  // Total balance remains global (all transactions)
+  const totalIncome = transactions
+    .filter((t) => t.type === 'income' && t.status === 'paid')
+    .reduce((total, t) => total + Number(t.amount), 0)
+  const totalExpense = transactions
+    .filter((t) => t.type === 'expense' && t.status === 'paid')
+    .reduce((total, t) => total + Number(t.amount), 0)
+  const balance = totalIncome - totalExpense
   const goalTarget = goals.reduce((total, goal) => total + Number(goal.target_amount), 0)
   const goalCurrent = goals.reduce((total, goal) => total + Number(goal.current_amount), 0)
 

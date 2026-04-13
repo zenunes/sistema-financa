@@ -24,7 +24,7 @@ export function DashboardChart({ transactions, currentMonth }: DashboardChartPro
   }, [transactions, currentMonth])
 
   return (
-    <section className="card" style={{ marginBottom: '2rem' }}>
+    <section className="card">
       <h2>Evolução Diária ({currentMonth})</h2>
       <div style={{ width: '100%', height: 350, marginTop: '1.5rem' }}>
         <ResponsiveContainer width="100%" height="100%">

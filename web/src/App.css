@@ -427,3 +427,46 @@ td {
 
 .text-success { color: #10b981; }
 .text-danger { color: #ef4444; }
+
+/* Month Selector */
+.month-selector {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 24px;
+  background: var(--card-bg);
+  padding: 8px 16px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+  width: fit-content;
+  margin-left: auto;
+  margin-right: auto;
+}
+.month-selector button {
+  padding: 4px 12px;
+  border-radius: 8px;
+  font-size: 1.1rem;
+}
+.month-selector button:hover {
+  background: var(--bg);
+}
+.month-display {
+  user-select: none;
+  transition: color 0.2s;
+}
+.month-display:hover {
+  color: var(--primary);
+}
+
+.charts-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: 2fr 1fr;
+}
+@media (max-width: 900px) {
+  .charts-grid {
+    grid-template-columns: 1fr;
+  }
+}

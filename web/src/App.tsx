@@ -3,6 +3,7 @@ import { useTransactions } from './hooks/useTransactions'
 import { useCategories } from './hooks/useCategories'
 import { useGoals } from './hooks/useGoals'
 import { useRecurringTransactions } from './hooks/useRecurringTransactions'
+import { useState, useEffect } from 'react'
 import { AuthView } from './components/AuthView'
 import { CategorySection } from './components/CategorySection'
 import { GoalSection } from './components/GoalSection'
@@ -10,7 +11,8 @@ import { RecurringSection } from './components/RecurringSection'
 import { SummaryCards } from './components/SummaryCards'
 import { DashboardChart } from './components/DashboardChart'
 import { TransactionSection } from './components/TransactionSection'
-import { useState, useEffect } from 'react'
+import { MonthSelector } from './components/MonthSelector'
+import { DonutChart } from './components/DonutChart'
 import type { TransactionType } from './types/finance'
 import './App.css'
 
@@ -20,7 +22,7 @@ function App() {
 
   const [error, setError] = useState('')
   const [info, setInfo] = useState('')
-  const currentMonth = new Date().toISOString().slice(0, 7)
+  const [currentMonth, setCurrentMonth] = useState(() => new Date().toISOString().slice(0, 7))
 
   const {
     transactions,
@@ -217,9 +219,14 @@ function App() {
 
           {!isInitialLoading && (
             <>
-              <SummaryCards transactions={transactions} goals={goals} />
-              
-              <DashboardChart transactions={transactions} currentMonth={currentMonth} />
+              <MonthSelector currentMonth={currentMonth} onChangeMonth={setCurrentMonth} />
+
+              <SummaryCards transactions={transactions} goals={goals} currentMonth={currentMonth} />
+
+              <div className="charts-grid">
+                <DashboardChart transactions={transactions} currentMonth={currentMonth} />
+                <DonutChart transactions={transactions} currentMonth={currentMonth} />
+              </div>
 
               <RecurringSection
                 categories={categories}
@@ -228,10 +235,10 @@ function App() {
                 onToggleActive={handleToggleRecurring}
                 onDelete={handleDeleteRecurring}
               />
-              
+
               <TransactionSection
                 categories={categories}
-                transactions={transactions}
+                transactions={transactions.filter(t => t.transaction_date.startsWith(currentMonth))}
                 onCreate={handleCreateTransaction}
                 onDelete={handleDeleteTransaction}
                 onToggleStatus={handleToggleTransactionStatus}
