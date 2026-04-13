@@ -6,9 +6,6 @@ import { RecurringList } from './RecurringList'
 interface RecurringSectionProps {
   categories: Category[]
   recurringTransactions: RecurringTransaction[]
-  month: string
-  generating: boolean
-  onGenerateMonth: () => Promise<void>
   onCreate: (params: {
     description: string
     amount: number
@@ -18,19 +15,14 @@ interface RecurringSectionProps {
   }) => Promise<void>
   onToggleActive: (id: string, active: boolean) => Promise<void>
   onDelete: (id: string) => Promise<void>
-  isCreating?: boolean
 }
 
 export function RecurringSection({
   categories,
   recurringTransactions,
-  month,
-  generating,
-  onGenerateMonth,
   onCreate,
   onToggleActive,
   onDelete,
-  isCreating = false,
 }: RecurringSectionProps) {
   const [loadingId, setLoadingId] = useState<string | null>(null)
 
@@ -53,20 +45,16 @@ export function RecurringSection({
   }
 
   return (
-    <section className="card card-recurring" style={{ marginBottom: '2rem' }}>
-      <div className="card-header">
+    <section className="card">
+      <div className="recurring-card-header" style={{ padding: '0 0 1rem 0' }}>
         <h2>Despesas e Receitas Recorrentes</h2>
-        <button type="button" className="accent" onClick={onGenerateMonth} disabled={generating}>
-          {generating ? 'Gerando...' : `🏦 Gerar para ${month}`}
-        </button>
-      </div>
-      
-      <div className="alert-info">
-        Cadastre contas fixas ou receitas mensais aqui. Clique em <strong>"Gerar para {month}"</strong> para lançá-las
-        na lista principal de lançamentos sem duplicar.
       </div>
 
-      <RecurringForm categories={categories} onSubmit={onCreate} submitting={isCreating} />
+      <div className="alert-info">
+        Cadastre contas fixas ou receitas mensais aqui. O sistema vai gerar automaticamente as pendências na lista principal de lançamentos no início de cada mês.
+      </div>
+
+      <RecurringForm categories={categories} onSubmit={onCreate} submitting={false} />
 
       <h3 style={{ marginTop: '2rem', marginBottom: '1rem' }}>Lista de Recorrências</h3>
       <RecurringList

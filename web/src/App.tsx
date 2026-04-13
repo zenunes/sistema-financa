@@ -10,7 +10,7 @@ import { RecurringSection } from './components/RecurringSection'
 import { SummaryCards } from './components/SummaryCards'
 import { DashboardChart } from './components/DashboardChart'
 import { TransactionSection } from './components/TransactionSection'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import type { TransactionType } from './types/finance'
 import './App.css'
 
@@ -52,8 +52,16 @@ function App() {
     toggleRecurringTransaction,
     deleteRecurringTransaction,
     generateRecurringTransactions,
-    isGenerating,
   } = useRecurringTransactions(userId)
+
+  // Auto-generate recurring transactions on mount
+  useEffect(() => {
+    if (userId && currentMonth) {
+      generateRecurringTransactions(currentMonth).catch((err) => {
+        console.error('Failed to auto-generate recurring transactions:', err)
+      })
+    }
+  }, [userId, currentMonth, generateRecurringTransactions])
 
   const isInitialLoading =
     loadingAuth ||
@@ -73,6 +81,7 @@ function App() {
     description: string
     amount: number
     type: TransactionType
+    status: 'pending' | 'paid'
     categoryId?: string
     transactionDate: string
   }) {
@@ -186,20 +195,6 @@ function App() {
     }
   }
 
-  async function handleGenerateRecurring() {
-    setError(''); setInfo('')
-    try {
-      const count = await generateRecurringTransactions(currentMonth)
-      setInfo(
-        count > 0
-          ? `${count} lançamento(s) recorrente(s) gerado(s) para ${currentMonth}.`
-          : `Sem novos lançamentos recorrentes para ${currentMonth}.`
-      )
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erro ao gerar recorrências.')
-    }
-  }
-
   return (
     <main className="app-shell">
       {!session ? (
@@ -229,9 +224,6 @@ function App() {
               <RecurringSection
                 categories={categories}
                 recurringTransactions={recurringTransactions}
-                month={currentMonth}
-                generating={isGenerating}
-                onGenerateMonth={handleGenerateRecurring}
                 onCreate={handleCreateRecurring}
                 onToggleActive={handleToggleRecurring}
                 onDelete={handleDeleteRecurring}
