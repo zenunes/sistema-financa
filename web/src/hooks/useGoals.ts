@@ -54,13 +54,40 @@ export function useGoals(userId: string | undefined) {
     },
   })
 
+  const addFundsMutation = useMutation({
+    mutationFn: async ({ id, amount }: { id: string; amount: number }) => {
+      // Obter meta atual
+      const { data: goalData, error: fetchError } = await supabase
+        .from('goals')
+        .select('current_amount')
+        .eq('id', id)
+        .single()
+
+      if (fetchError) throw new Error(`Falha ao buscar meta: ${fetchError.message}`)
+
+      const newAmount = Number(goalData.current_amount) + amount
+
+      const { error: updateError } = await supabase
+        .from('goals')
+        .update({ current_amount: newAmount })
+        .eq('id', id)
+
+      if (updateError) throw new Error(updateError.message)
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: financeKeys.goals(userId) })
+    },
+  })
+
   return {
     goals: query.data ?? [],
     isLoading: query.isLoading,
     error: query.error,
     createGoal: createMutation.mutateAsync,
     deleteGoal: deleteMutation.mutateAsync,
+    addFundsGoal: addFundsMutation.mutateAsync,
     isCreating: createMutation.isPending,
     isDeleting: deleteMutation.isPending,
+    isAddingFunds: addFundsMutation.isPending,
   }
 }

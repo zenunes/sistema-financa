@@ -11,14 +11,18 @@ interface GoalSectionProps {
     dueDate?: string
   }) => Promise<void>
   onDelete: (id: string) => Promise<void>
+  onAddFunds: (id: string, amount: number) => Promise<void>
 }
 
-export function GoalSection({ goals, onCreate, onDelete }: GoalSectionProps) {
+export function GoalSection({ goals, onCreate, onDelete, onAddFunds }: GoalSectionProps) {
   const [title, setTitle] = useState('')
   const [targetAmount, setTargetAmount] = useState('')
   const [currentAmount, setCurrentAmount] = useState('')
   const [dueDate, setDueDate] = useState('')
   const [submitting, setSubmitting] = useState(false)
+  const [depositGoalId, setDepositGoalId] = useState<string | null>(null)
+  const [depositAmount, setDepositAmount] = useState('')
+  const [depositing, setDepositing] = useState(false)
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -38,6 +42,20 @@ export function GoalSection({ goals, onCreate, onDelete }: GoalSectionProps) {
       setDueDate('')
     } finally {
       setSubmitting(false)
+    }
+  }
+
+  async function handleDeposit(event: FormEvent<HTMLFormElement>, id: string) {
+    event.preventDefault()
+    if (!depositAmount || isNaN(Number(depositAmount))) return
+    
+    setDepositing(true)
+    try {
+      await onAddFunds(id, Number(depositAmount))
+      setDepositGoalId(null)
+      setDepositAmount('')
+    } finally {
+      setDepositing(false)
     }
   }
 
@@ -95,7 +113,7 @@ export function GoalSection({ goals, onCreate, onDelete }: GoalSectionProps) {
             : 0
 
           return (
-            <article key={goal.id} className="goal-card">
+            <article key={goal.id} className="goal-card" style={{ display: 'flex', flexDirection: 'column' }}>
               <header>
                 <h3>{goal.title}</h3>
                 <button type="button" className="danger" onClick={() => onDelete(goal.id)}>
@@ -106,10 +124,41 @@ export function GoalSection({ goals, onCreate, onDelete }: GoalSectionProps) {
                 {formatCurrency(Number(goal.current_amount))} de{' '}
                 {formatCurrency(Number(goal.target_amount))}
               </p>
-              <p className="muted">Prazo: {formatDate(goal.due_date)}</p>
-              <div className="progress-bar">
+              <p className="muted" style={{ marginBottom: '0.5rem' }}>Prazo: {formatDate(goal.due_date)}</p>
+              <div className="progress-bar" style={{ marginBottom: '1rem' }}>
                 <span style={{ width: `${progress}%` }} />
               </div>
+              
+              {depositGoalId === goal.id ? (
+                <form onSubmit={(e) => handleDeposit(e, goal.id)} style={{ display: 'flex', gap: '8px', marginTop: 'auto' }}>
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    placeholder="Valor R$"
+                    value={depositAmount}
+                    onChange={(e) => setDepositAmount(e.target.value)}
+                    required
+                    style={{ flex: 1, padding: '6px 8px', fontSize: '0.9rem' }}
+                    autoFocus
+                  />
+                  <button type="submit" disabled={depositing} style={{ padding: '6px 12px', fontSize: '0.9rem' }}>
+                    OK
+                  </button>
+                  <button type="button" className="ghost" onClick={() => setDepositGoalId(null)} style={{ padding: '6px 12px', fontSize: '0.9rem' }}>
+                    X
+                  </button>
+                </form>
+              ) : (
+                <button 
+                  type="button" 
+                  className="ghost" 
+                  style={{ width: '100%', marginTop: 'auto' }}
+                  onClick={() => setDepositGoalId(goal.id)}
+                >
+                  Depositar na meta
+                </button>
+              )}
             </article>
           )
         })}

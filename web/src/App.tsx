@@ -45,6 +45,7 @@ function App() {
     isLoading: loadingGoals,
     createGoal,
     deleteGoal,
+    addFundsGoal,
   } = useGoals(userId)
 
   const {
@@ -151,6 +152,27 @@ function App() {
     }
   }
 
+  async function handleAddFundsGoal(id: string, amount: number) {
+    setError(''); setInfo('')
+    try {
+      await addFundsGoal({ id, amount })
+      
+      const goal = goals.find((g) => g.id === id)
+      if (goal) {
+        await createTransaction({
+          description: `Depósito: ${goal.title}`,
+          amount,
+          type: 'expense',
+          status: 'paid',
+          transactionDate: new Date().toISOString().slice(0, 10),
+        })
+      }
+      setInfo('Valor depositado na meta com sucesso.')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erro ao depositar valor na meta.')
+    }
+  }
+
   async function handleDeleteGoal(id: string) {
     setError(''); setInfo('')
     try {
@@ -251,10 +273,11 @@ function App() {
                   onCreate={handleCreateCategory}
                   onDelete={handleDeleteCategory}
                 />
-                <GoalSection 
-                  goals={goals} 
-                  onCreate={handleCreateGoal} 
-                  onDelete={handleDeleteGoal} 
+                <GoalSection
+                  goals={goals}
+                  onCreate={handleCreateGoal}
+                  onDelete={handleDeleteGoal}
+                  onAddFunds={handleAddFundsGoal}
                 />
               </div>
             </>
