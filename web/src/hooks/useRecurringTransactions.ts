@@ -108,7 +108,7 @@ export function useRecurringTransactions(userId: string | undefined) {
         amount: params.amount,
         type: params.type,
         due_day: params.dueDay,
-        category_id: params.categoryId ?? null,
+        category_id: params.categoryId || null,
         active: true,
       })
       if (error) throw error

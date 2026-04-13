@@ -65,20 +65,24 @@ export function RecurringForm({ categories, onSubmit, submitting }: RecurringFor
   }, [selectedType, setValue])
 
   const handleFormSubmit = handleSubmit(async (data) => {
-    await onSubmit({
-      description: data.description,
-      amount: parseCurrencyInput(data.amount),
-      type: data.type,
-      dueDay: data.dueDay,
-      categoryId: data.categoryId || undefined,
-    })
-    reset({
-      type: data.type,
-      amount: '',
-      description: '',
-      categoryId: '',
-      dueDay: 1,
-    })
+    try {
+      await onSubmit({
+        description: data.description,
+        amount: parseCurrencyInput(data.amount),
+        type: data.type,
+        dueDay: data.dueDay,
+        categoryId: data.categoryId || undefined,
+      })
+      reset({
+        type: data.type,
+        amount: '',
+        description: '',
+        categoryId: '',
+        dueDay: 1,
+      })
+    } catch (err) {
+      console.error('Erro ao submeter form:', err)
+    }
   })
 
   return (
