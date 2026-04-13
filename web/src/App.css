@@ -124,17 +124,33 @@ button:disabled {
 }
 
 .danger {
-  background: #fff;
-  color: #c42e3c;
-  border-color: #f2c2c8;
-  padding: 6px 10px;
+  background: rgba(239, 68, 68, 0.05);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.15);
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+.danger:hover:not(:disabled) {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.25);
+  color: #dc2626;
 }
 
 .ghost {
-  background: #f8f3ff;
-  color: #5b22b8;
-  border-color: #e6d7ff;
-  padding: 6px 10px;
+  background: rgba(139, 92, 246, 0.05);
+  color: #7c3aed;
+  border: 1px solid rgba(139, 92, 246, 0.15);
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+.ghost:hover:not(:disabled) {
+  background: rgba(139, 92, 246, 0.1);
+  border-color: rgba(139, 92, 246, 0.25);
+  color: #6d28d9;
 }
 
 .table-wrapper {
@@ -148,11 +164,24 @@ table {
   min-width: 700px;
 }
 
-th,
+th {
+  padding: 12px 16px;
+  text-align: left;
+  border-bottom: 2px solid var(--border);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
 td {
-  padding: 10px 8px;
+  padding: 14px 16px;
   border-bottom: 1px solid var(--border);
   text-align: left;
+  font-size: 0.95rem;
+  color: var(--text);
+  vertical-align: middle;
 }
 
 .empty-row {
@@ -237,33 +266,51 @@ td {
   font-size: 1.1rem;
 }
 
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+
 .badge-icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 24px;
   height: 24px;
-  border-radius: 999px;
-  color: #fff;
+  border-radius: 9999px;
   font-size: 0.78rem;
   font-weight: 700;
 }
 
-.badge-blue {
-  background: #2563eb;
+.badge.badge-blue {
+  background: rgba(37, 99, 235, 0.15);
+  color: #1d4ed8;
+}
+.badge.badge-green {
+  background: rgba(16, 185, 129, 0.15);
+  color: #047857;
+}
+.badge.badge-red {
+  background: rgba(239, 68, 68, 0.15);
+  color: #b91c1c;
+}
+.badge.badge-purple {
+  background: rgba(124, 58, 237, 0.15);
+  color: #6d28d9;
 }
 
-.badge-green {
-  background: #059669;
-}
-
-.badge-red {
-  background: #dc2626;
-}
-
-.badge-purple {
-  background: #7c3aed;
-}
+.badge-icon.badge-blue { background: #2563eb; color: #fff; }
+.badge-icon.badge-green { background: #059669; color: #fff; }
+.badge-icon.badge-red { background: #dc2626; color: #fff; }
+.badge-icon.badge-purple { background: #7c3aed; color: #fff; }
 
 .section-head {
   display: flex;
