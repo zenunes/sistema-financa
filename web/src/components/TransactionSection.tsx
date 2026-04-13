@@ -10,10 +10,12 @@ interface TransactionSectionProps {
     description: string
     amount: number
     type: TransactionType
+    status: 'pending' | 'paid'
     categoryId?: string
     transactionDate: string
   }) => Promise<void>
   onDelete: (id: string) => Promise<void>
+  onToggleStatus: (id: string, status: 'pending' | 'paid') => Promise<void>
   isCreating?: boolean
 }
 
@@ -22,16 +24,27 @@ export function TransactionSection({
   transactions,
   onCreate,
   onDelete,
+  onToggleStatus,
   isCreating = false,
 }: TransactionSectionProps) {
-  const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [loadingId, setLoadingId] = useState<string | null>(null)
 
   async function handleDelete(id: string) {
-    setDeletingId(id)
+    setLoadingId(id)
     try {
       await onDelete(id)
     } finally {
-      setDeletingId(null)
+      setLoadingId(null)
+    }
+  }
+
+  async function handleToggleStatus(id: string, currentStatus: 'pending' | 'paid') {
+    setLoadingId(id)
+    try {
+      const newStatus = currentStatus === 'paid' ? 'pending' : 'paid'
+      await onToggleStatus(id, newStatus)
+    } finally {
+      setLoadingId(null)
     }
   }
 
@@ -42,7 +55,8 @@ export function TransactionSection({
       <TransactionList
         transactions={transactions}
         onDelete={handleDelete}
-        deletingId={deletingId}
+        onToggleStatus={handleToggleStatus}
+        loadingId={loadingId}
       />
     </section>
   )

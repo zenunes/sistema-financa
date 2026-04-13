@@ -28,6 +28,7 @@ export function useTransactions(userId: string | undefined) {
       description: string
       amount: number
       type: TransactionType
+      status?: 'pending' | 'paid'
       categoryId?: string
       transactionDate: string
     }) => {
@@ -36,10 +37,11 @@ export function useTransactions(userId: string | undefined) {
         description: params.description,
         amount: params.amount,
         type: params.type,
+        status: params.status ?? 'paid',
         category_id: params.categoryId ?? null,
         transaction_date: params.transactionDate,
       })
-      if (error) throw error
+      if (error) throw new Error(error.message)
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: financeKeys.transactions(userId) })
@@ -49,7 +51,17 @@ export function useTransactions(userId: string | undefined) {
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
       const { error } = await supabase.from('transactions').delete().eq('id', id)
-      if (error) throw error
+      if (error) throw new Error(error.message)
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: financeKeys.transactions(userId) })
+    },
+  })
+
+  const toggleStatusMutation = useMutation({
+    mutationFn: async ({ id, status }: { id: string; status: 'pending' | 'paid' }) => {
+      const { error } = await supabase.from('transactions').update({ status }).eq('id', id)
+      if (error) throw new Error(error.message)
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: financeKeys.transactions(userId) })
@@ -62,7 +74,9 @@ export function useTransactions(userId: string | undefined) {
     error: query.error,
     createTransaction: createMutation.mutateAsync,
     deleteTransaction: deleteMutation.mutateAsync,
+    toggleTransactionStatus: toggleStatusMutation.mutateAsync,
     isCreating: createMutation.isPending,
     isDeleting: deleteMutation.isPending,
+    isTogglingStatus: toggleStatusMutation.isPending,
   }
 }

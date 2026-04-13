@@ -17,6 +17,7 @@ export interface Transaction {
   description: string
   amount: number
   type: TransactionType
+  status: 'pending' | 'paid'
   transaction_date: string
   created_at: string
   category?: Category | null

@@ -27,6 +27,7 @@ function App() {
     isLoading: loadingTransactions,
     createTransaction,
     deleteTransaction,
+    toggleTransactionStatus,
     isCreating: creatingTx,
   } = useTransactions(userId)
 
@@ -91,6 +92,16 @@ function App() {
       setInfo('Lançamento excluído.')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao excluir lançamento.')
+    }
+  }
+
+  async function handleToggleTransactionStatus(id: string, status: 'pending' | 'paid') {
+    setError(''); setInfo('')
+    try {
+      await toggleTransactionStatus({ id, status })
+      setInfo(status === 'paid' ? 'Lançamento marcado como pago.' : 'Lançamento marcado como pendente.')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erro ao alterar status do lançamento.')
     }
   }
 
@@ -231,6 +242,7 @@ function App() {
                 transactions={transactions}
                 onCreate={handleCreateTransaction}
                 onDelete={handleDeleteTransaction}
+                onToggleStatus={handleToggleTransactionStatus}
                 isCreating={creatingTx}
               />
               

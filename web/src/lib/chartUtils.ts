@@ -31,9 +31,9 @@ export function aggregateTransactionsByDay(
     expense: 0,
   }))
 
-  // Filtrar transações apenas do mês atual
-  const currentMonthTransactions = transactions.filter((t) =>
-    t.transaction_date.startsWith(currentMonth),
+  // Filtrar transações apenas do mês atual e que já foram pagas
+  const currentMonthTransactions = transactions.filter(
+    (t) => t.transaction_date.startsWith(currentMonth) && t.status === 'paid',
   )
 
   // Somar valores por dia
