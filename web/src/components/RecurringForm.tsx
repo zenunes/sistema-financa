@@ -17,6 +17,7 @@ const recurringSchema = z.object({
     .min(1, 'O dia deve ser entre 1 e 31')
     .max(31, 'O dia deve ser entre 1 e 31'),
   categoryId: z.string().optional(),
+  installments: z.string().optional(),
 })
 
 type RecurringFormData = z.infer<typeof recurringSchema>
@@ -29,6 +30,7 @@ interface RecurringFormProps {
     type: TransactionType
     dueDay: number
     categoryId?: string
+    installments?: number
   }) => Promise<void>
   submitting?: boolean
 }
@@ -49,6 +51,7 @@ export function RecurringForm({ categories, onSubmit, submitting }: RecurringFor
       description: '',
       categoryId: '',
       dueDay: 1,
+      installments: '',
     },
   })
 
@@ -66,12 +69,14 @@ export function RecurringForm({ categories, onSubmit, submitting }: RecurringFor
 
   const handleFormSubmit = handleSubmit(async (data) => {
     try {
+      const parsedInstallments = data.installments ? parseInt(data.installments, 10) : undefined
       await onSubmit({
         description: data.description,
         amount: parseCurrencyInput(data.amount),
         type: data.type,
         dueDay: data.dueDay,
         categoryId: data.categoryId || undefined,
+        installments: parsedInstallments && parsedInstallments > 0 ? parsedInstallments : undefined,
       })
       reset({
         type: data.type,
@@ -79,6 +84,7 @@ export function RecurringForm({ categories, onSubmit, submitting }: RecurringFor
         description: '',
         categoryId: '',
         dueDay: 1,
+        installments: '',
       })
     } catch (err) {
       console.error('Erro ao submeter form:', err)
@@ -142,6 +148,18 @@ export function RecurringForm({ categories, onSubmit, submitting }: RecurringFor
           ))}
         </select>
         {errors.categoryId && <span className="error-text">{errors.categoryId.message}</span>}
+      </label>
+
+      <label>
+        Repetir X vezes
+        <input
+          {...register('installments')}
+          type="number"
+          min="2"
+          placeholder="Ex: 10 (Deixe vazio para infinito)"
+          className={errors.installments ? 'input-error' : ''}
+        />
+        {errors.installments && <span className="error-text">{errors.installments.message}</span>}
       </label>
 
       <button type="submit" disabled={submitting}>

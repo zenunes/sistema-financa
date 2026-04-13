@@ -68,14 +68,42 @@ export function useTransactions(userId: string | undefined) {
     },
   })
 
+  const updateMutation = useMutation({
+    mutationFn: async ({ id, ...params }: {
+      id: string
+      description: string
+      amount: number
+      type: TransactionType
+      status: 'pending' | 'paid'
+      categoryId?: string
+      transactionDate: string
+    }) => {
+      const { error } = await supabase.from('transactions').update({
+        description: params.description,
+        amount: params.amount,
+        type: params.type,
+        status: params.status,
+        category_id: params.categoryId ?? null,
+        transaction_date: params.transactionDate,
+      }).eq('id', id)
+      
+      if (error) throw new Error(error.message)
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: financeKeys.transactions(userId) })
+    },
+  })
+
   return {
     transactions: query.data ?? [],
     isLoading: query.isLoading,
     error: query.error,
     createTransaction: createMutation.mutateAsync,
+    updateTransaction: updateMutation.mutateAsync,
     deleteTransaction: deleteMutation.mutateAsync,
     toggleTransactionStatus: toggleStatusMutation.mutateAsync,
     isCreating: createMutation.isPending,
+    isUpdating: updateMutation.isPending,
     isDeleting: deleteMutation.isPending,
     isTogglingStatus: toggleStatusMutation.isPending,
   }

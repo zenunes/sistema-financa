@@ -29,7 +29,14 @@ export async function generateRecurringTransactionsForMonth(userId: string, mont
   if (recurringError) throw new Error(`Falha ao buscar recorrências ativas: ${recurringError.message}`)
   if (!recurringData || recurringData.length === 0) return 0
 
-  const recurringIds = recurringData.map((item) => item.id)
+  // Filtrar recorrências que já atingiram o limite de parcelas
+  const validRecurringData = recurringData.filter(
+    (item) => item.installments === null || item.generated_installments < item.installments
+  )
+
+  if (validRecurringData.length === 0) return 0
+
+  const recurringIds = validRecurringData.map((item) => item.id)
   const { data: existingData, error: existingError } = await supabase
     .from('transactions')
     .select('recurring_source_id')
@@ -46,9 +53,11 @@ export async function generateRecurringTransactionsForMonth(userId: string, mont
       .filter((value): value is string => typeof value === 'string'),
   )
 
-  const inserts = recurringData
-    .filter((item) => !existingIds.has(item.id))
-    .map((item) => {
+  const toGenerate = validRecurringData.filter((item) => !existingIds.has(item.id))
+  
+  if (toGenerate.length === 0) return 0
+
+  const inserts = toGenerate.map((item) => {
       const dueDay = Math.min(Number(item.due_day), monthEnd.getUTCDate())
       const transactionDate = new Date(
         Date.UTC(monthStart.getUTCFullYear(), monthStart.getUTCMonth(), dueDay),
@@ -59,7 +68,9 @@ export async function generateRecurringTransactionsForMonth(userId: string, mont
         category_id: item.category_id || null,
         recurring_source_id: item.id || null,
         recurrence_month: monthStartText,
-        description: item.description,
+        description: item.installments 
+          ? `${item.description} (${item.generated_installments + 1}/${item.installments})` 
+          : item.description,
         amount: item.amount,
         type: item.type,
         status: 'pending',
@@ -67,10 +78,24 @@ export async function generateRecurringTransactionsForMonth(userId: string, mont
       }
     })
 
-  if (inserts.length === 0) return 0
-
   const { error: insertError } = await supabase.from('transactions').insert(inserts)
   if (insertError) throw new Error(`Falha ao inserir os novos lançamentos recorrentes: ${insertError.message}`)
+
+  // Incrementar parcelas geradas e desativar se atingiu o limite
+  for (const item of toGenerate) {
+    if (item.installments) {
+      const newGenerated = item.generated_installments + 1
+      const active = newGenerated < item.installments
+      
+      await supabase
+        .from('recurring_transactions')
+        .update({ 
+          generated_installments: newGenerated,
+          active 
+        })
+        .eq('id', item.id)
+    }
+  }
 
   return inserts.length
 }
@@ -102,6 +127,7 @@ export function useRecurringTransactions(userId: string | undefined) {
       type: TransactionType
       dueDay: number
       categoryId?: string
+      installments?: number
     }) => {
       const { error } = await supabase.from('recurring_transactions').insert({
         user_id: userId!,
@@ -111,6 +137,8 @@ export function useRecurringTransactions(userId: string | undefined) {
         due_day: params.dueDay,
         category_id: params.categoryId || null,
         active: true,
+        installments: params.installments ?? null,
+        generated_installments: 0,
       })
       if (error) throw new Error(error.message)
     },

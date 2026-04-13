@@ -5,6 +5,7 @@ interface TransactionListProps {
   transactions: Transaction[]
   onDelete: (id: string) => void
   onToggleStatus: (id: string, status: 'pending' | 'paid') => void
+  onEdit?: (transaction: Transaction) => void
   loadingId?: string | null
 }
 
@@ -12,8 +13,11 @@ export function TransactionList({
   transactions,
   onDelete,
   onToggleStatus,
+  onEdit,
   loadingId,
 }: TransactionListProps) {
+  const today = new Date().toISOString().slice(0, 10)
+
   return (
     <div className="table-wrapper">
       <table>
@@ -36,9 +40,25 @@ export function TransactionList({
               </td>
             </tr>
           )}
-          {transactions.map((transaction) => (
-            <tr key={transaction.id} style={{ opacity: transaction.status === 'pending' ? 0.6 : 1 }}>
-              <td>{transaction.description}</td>
+          {transactions.map((transaction) => {
+            const isPending = transaction.status === 'pending'
+            const isOverdue = isPending && transaction.transaction_date < today
+            const isNearDue = isPending && transaction.transaction_date === today
+            
+            let rowStyle = {}
+            if (isPending) {
+              rowStyle = { opacity: 0.85 }
+              if (isOverdue) rowStyle = { ...rowStyle, background: 'rgba(239, 68, 68, 0.05)', borderLeft: '3px solid #ef4444' }
+              else if (isNearDue) rowStyle = { ...rowStyle, background: 'rgba(245, 158, 11, 0.05)', borderLeft: '3px solid #f59e0b' }
+            }
+
+            return (
+            <tr key={transaction.id} style={rowStyle}>
+              <td>
+                {transaction.description}
+                {isOverdue && <span style={{ color: '#ef4444', fontSize: '0.75rem', display: 'block', fontWeight: 600 }}>Atrasado</span>}
+                {isNearDue && <span style={{ color: '#f59e0b', fontSize: '0.75rem', display: 'block', fontWeight: 600 }}>Vence hoje</span>}
+              </td>
               <td>
                 <span className={`badge ${transaction.type === 'income' ? 'badge-green' : 'badge-red'}`}>
                   {transaction.type === 'income' ? 'Receita' : 'Despesa'}
@@ -61,6 +81,17 @@ export function TransactionList({
                 >
                   {transaction.status === 'paid' ? 'Desfazer' : 'Pagar'}
                 </button>
+                {onEdit && (
+                  <button
+                    type="button"
+                    className="ghost"
+                    onClick={() => onEdit(transaction)}
+                    disabled={loadingId === transaction.id}
+                    title="Editar"
+                  >
+                    ✏️
+                  </button>
+                )}
                 <button
                   type="button"
                   className="danger"
@@ -71,7 +102,7 @@ export function TransactionList({
                 </button>
               </td>
             </tr>
-          ))}
+          )})}
         </tbody>
       </table>
     </div>

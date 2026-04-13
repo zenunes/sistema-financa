@@ -49,6 +49,14 @@ export function RecurringList({
                 <span className="detail-label">Categoria</span>
                 <span className="detail-value">{recurring.category?.name ?? 'Sem categoria'}</span>
               </div>
+              {recurring.installments && (
+                <div className="recurring-detail">
+                  <span className="detail-label">Parcelas geradas</span>
+                  <span className="detail-value">
+                    {recurring.generated_installments} / {recurring.installments}
+                  </span>
+                </div>
+              )}
             </div>
 
             <div className="recurring-card-footer">

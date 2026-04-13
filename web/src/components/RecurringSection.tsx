@@ -12,6 +12,7 @@ interface RecurringSectionProps {
     type: TransactionType
     dueDay: number
     categoryId?: string
+    installments?: number
   }) => Promise<void>
   onToggleActive: (id: string, active: boolean) => Promise<void>
   onDelete: (id: string) => Promise<void>

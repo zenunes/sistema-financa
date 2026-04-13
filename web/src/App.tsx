@@ -28,6 +28,7 @@ function App() {
     transactions,
     isLoading: loadingTransactions,
     createTransaction,
+    updateTransaction,
     deleteTransaction,
     toggleTransactionStatus,
     isCreating: creatingTx,
@@ -94,6 +95,23 @@ function App() {
       setInfo('Lançamento criado com sucesso.')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao criar lançamento.')
+    }
+  }
+
+  async function handleUpdateTransaction(id: string, params: {
+    description: string
+    amount: number
+    type: TransactionType
+    status: 'pending' | 'paid'
+    categoryId?: string
+    transactionDate: string
+  }) {
+    setError(''); setInfo('')
+    try {
+      await updateTransaction({ id, ...params })
+      setInfo('Lançamento atualizado com sucesso.')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erro ao atualizar lançamento.')
     }
   }
 
@@ -189,6 +207,7 @@ function App() {
     type: TransactionType
     dueDay: number
     categoryId?: string
+    installments?: number
   }) {
     setError(''); setInfo('')
     try {
@@ -262,6 +281,7 @@ function App() {
                 categories={categories}
                 transactions={transactions.filter(t => t.transaction_date.startsWith(currentMonth))}
                 onCreate={handleCreateTransaction}
+                onUpdate={handleUpdateTransaction}
                 onDelete={handleDeleteTransaction}
                 onToggleStatus={handleToggleTransactionStatus}
                 isCreating={creatingTx}

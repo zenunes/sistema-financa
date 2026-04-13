@@ -30,9 +30,10 @@ interface TransactionFormProps {
     transactionDate: string
   }) => Promise<void>
   submitting: boolean
+  defaultValues?: Partial<TransactionFormData>
 }
 
-export function TransactionForm({ categories, onSubmit, submitting }: TransactionFormProps) {
+export function TransactionForm({ categories, onSubmit, submitting, defaultValues }: TransactionFormProps) {
   const {
     register,
     handleSubmit,
@@ -42,7 +43,7 @@ export function TransactionForm({ categories, onSubmit, submitting }: Transactio
     formState: { errors },
   } = useForm<TransactionFormData>({
     resolver: zodResolver(transactionSchema),
-    defaultValues: {
+    defaultValues: defaultValues || {
       type: 'expense',
       status: 'paid',
       amount: '',
@@ -74,14 +75,17 @@ export function TransactionForm({ categories, onSubmit, submitting }: Transactio
       categoryId: data.categoryId || undefined,
       transactionDate: data.transactionDate,
     })
-    reset({
-      type: data.type,
-      status: data.status,
-      transactionDate: data.transactionDate,
-      amount: '',
-      description: '',
-      categoryId: '',
-    })
+    
+    if (!defaultValues) {
+      reset({
+        type: data.type,
+        status: data.status,
+        transactionDate: data.transactionDate,
+        amount: '',
+        description: '',
+        categoryId: '',
+      })
+    }
   })
 
   return (
