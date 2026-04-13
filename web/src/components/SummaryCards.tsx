@@ -8,10 +8,10 @@ interface SummaryCardsProps {
 
 export function SummaryCards({ transactions, goals }: SummaryCardsProps) {
   const income = transactions
-    .filter((transaction) => transaction.type === 'income')
+    .filter((transaction) => transaction.type === 'income' && transaction.status === 'paid')
     .reduce((total, transaction) => total + Number(transaction.amount), 0)
   const expense = transactions
-    .filter((transaction) => transaction.type === 'expense')
+    .filter((transaction) => transaction.type === 'expense' && transaction.status === 'paid')
     .reduce((total, transaction) => total + Number(transaction.amount), 0)
   const balance = income - expense
   const goalTarget = goals.reduce((total, goal) => total + Number(goal.target_amount), 0)

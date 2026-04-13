@@ -12,6 +12,7 @@ const transactionSchema = z.object({
     .min(1, 'Informe um valor')
     .refine((val) => parseCurrencyInput(val) > 0, 'O valor deve ser maior que zero'),
   type: z.enum(['income', 'expense']),
+  status: z.enum(['pending', 'paid']),
   categoryId: z.string().optional(),
   transactionDate: z.string().min(10, 'Informe a data do lançamento'),
 })
@@ -24,6 +25,7 @@ interface TransactionFormProps {
     description: string
     amount: number
     type: TransactionType
+    status: 'pending' | 'paid'
     categoryId?: string
     transactionDate: string
   }) => Promise<void>
@@ -42,6 +44,7 @@ export function TransactionForm({ categories, onSubmit, submitting }: Transactio
     resolver: zodResolver(transactionSchema),
     defaultValues: {
       type: 'expense',
+      status: 'paid',
       amount: '',
       description: '',
       categoryId: '',
@@ -67,11 +70,13 @@ export function TransactionForm({ categories, onSubmit, submitting }: Transactio
       description: data.description,
       amount: parseCurrencyInput(data.amount),
       type: data.type,
+      status: data.status,
       categoryId: data.categoryId || undefined,
       transactionDate: data.transactionDate,
     })
     reset({
       type: data.type,
+      status: data.status,
       transactionDate: data.transactionDate,
       amount: '',
       description: '',
@@ -111,6 +116,15 @@ export function TransactionForm({ categories, onSubmit, submitting }: Transactio
           <option value="income">Receita</option>
         </select>
         {errors.type && <span className="error-text">{errors.type.message}</span>}
+      </label>
+
+      <label>
+        Status
+        <select {...register('status')}>
+          <option value="paid">Pago / Efetivado</option>
+          <option value="pending">Pendente</option>
+        </select>
+        {errors.status && <span className="error-text">{errors.status.message}</span>}
       </label>
 
       <label>

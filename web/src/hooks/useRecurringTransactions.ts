@@ -62,6 +62,7 @@ export async function generateRecurringTransactionsForMonth(userId: string, mont
         description: item.description,
         amount: item.amount,
         type: item.type,
+        status: 'pending',
         transaction_date: toDateString(transactionDate),
       }
     })

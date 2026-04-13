@@ -17,6 +17,7 @@ create table if not exists public.transactions (
   description text not null,
   amount numeric(12, 2) not null check (amount >= 0),
   type text not null check (type in ('income', 'expense')),
+  status text not null default 'paid' check (status in ('pending', 'paid')),
   transaction_date date not null,
   created_at timestamptz not null default now()
 );
