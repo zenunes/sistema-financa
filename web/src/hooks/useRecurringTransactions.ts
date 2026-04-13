@@ -111,7 +111,7 @@ export function useRecurringTransactions(userId: string | undefined) {
         category_id: params.categoryId || null,
         active: true,
       })
-      if (error) throw error
+      if (error) throw new Error(error.message)
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: financeKeys.recurring(userId) })
@@ -121,7 +121,7 @@ export function useRecurringTransactions(userId: string | undefined) {
   const toggleMutation = useMutation({
     mutationFn: async ({ id, active }: { id: string; active: boolean }) => {
       const { error } = await supabase.from('recurring_transactions').update({ active }).eq('id', id)
-      if (error) throw error
+      if (error) throw new Error(error.message)
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: financeKeys.recurring(userId) })
@@ -131,7 +131,7 @@ export function useRecurringTransactions(userId: string | undefined) {
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
       const { error } = await supabase.from('recurring_transactions').delete().eq('id', id)
-      if (error) throw error
+      if (error) throw new Error(error.message)
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: financeKeys.recurring(userId) })
