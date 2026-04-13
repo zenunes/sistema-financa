@@ -10,8 +10,8 @@ Aqui estão as próximas grandes melhorias a serem implementadas no sistema para
 - [x] **Filtro Dinâmico:** Fazer todos os gráficos, resumos e lançamentos da tela mudarem automaticamente para refletir o mês escolhido.
 
 ## 3. 🎯 Metas Financeiras Inteligentes
-- [ ] **Barra de Progresso:** Visualização colorida indicando a porcentagem de conclusão da meta.
-- [ ] **Depósito em Metas:** Funcionalidade de alocar (guardar) dinheiro diretamente na meta, descontando do saldo principal disponível no momento.
+- [x] **Barra de Progresso:** Visualização colorida indicando a porcentagem de conclusão da meta.
+- [x] **Depósito em Metas:** Funcionalidade de alocar (guardar) dinheiro diretamente na meta, descontando do saldo principal disponível no momento.
 
 ## 4. 💳 Controle de Cartão de Crédito
 - [ ] **Cadastro de Cartões:** Gerenciamento de cartões com limite, dia de fechamento e dia de vencimento.
