@@ -2,13 +2,12 @@
 
 Aqui estão as próximas grandes melhorias a serem implementadas no sistema para torná-lo um aplicativo financeiro completo:
 
-## 1. 📊 Análise e Gráficos Avançados
-- [ ] **Gráfico de Rosca (Donut Chart):** Visualização de despesas divididas por categoria (ex: 40% Moradia, 30% Alimentação, 10% Lazer) para saber exatamente para onde vai o dinheiro.
-- [ ] **Resumo de Receitas vs Despesas:** Comparativo visual rápido do balanço do mês.
+### 📊 1. Análise e Gráficos Avançados
+- [x] **Gráfico de Rosca (Donut Chart):** Visualização das suas despesas divididas por categoria (ex: 40% Moradia, 30% Alimentação) para descobrir rápido para onde o dinheiro está fugindo.
 
-## 2. 📅 Navegação Temporal (Filtro de Meses)
-- [ ] **Seletor de Mês/Ano:** Adicionar controle no topo da tela (ex: `< Abril 2026 >`) para navegar no histórico financeiro.
-- [ ] **Filtro Dinâmico:** Atualizar gráficos, resumos, lançamentos e metas automaticamente ao trocar o mês de referência.
+### 📅 2. Navegação Temporal (A Máquina do Tempo)
+- [x] **Seletor de Mês/Ano:** Adicionar um controle (ex: `< Abril 2026 >`) no topo da tela para navegar no seu histórico.
+- [x] **Filtro Dinâmico:** Fazer todos os gráficos, resumos e lançamentos da tela mudarem automaticamente para refletir o mês escolhido.
 
 ## 3. 🎯 Metas Financeiras Inteligentes
 - [ ] **Barra de Progresso:** Visualização colorida indicando a porcentagem de conclusão da meta.
