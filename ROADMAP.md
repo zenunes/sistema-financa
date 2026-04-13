@@ -18,6 +18,7 @@ Aqui estão as próximas grandes melhorias a serem implementadas no sistema para
 - [ ] **Lançamento em Fatura:** Compras no crédito acumulam na fatura do mês correspondente em vez de descontar do saldo imediato.
 - [ ] **Pagamento de Fatura:** Geração de uma despesa consolidada automática no dia do vencimento do cartão.
 
-## 5. 🎨 UI/UX e Acessibilidade
-- [ ] **Modo Escuro (Dark Mode):** Botão de alternância (Sol/Lua) para mudar o tema da aplicação para cores escuras, descansando a vista.
-- [ ] **Otimização Mobile:** Refinamento do layout responsivo para uso perfeito e confortável em telas de celular.
+## 6. 🔄 Recorrências Inteligentes e Edição
+- [x] **Editar Lançamentos:** Botão (✏️) na tabela de lançamentos para ajustar o valor e data de contas variáveis (ex: Conta de Luz) antes de pagar.
+- [x] **Alerta Visual de Vencimento:** Destacar em amarelo (próximo do vencimento) ou vermelho (atrasado) as contas pendentes na lista.
+- [x] **Parcelamentos (Repetir X Vezes):** Adicionar opção de definir o número de vezes que uma conta recorrente deve se repetir antes de parar automaticamente.
