@@ -19,73 +19,66 @@ export function RecurringList({
   }
 
   return (
-    <div className="recurring-cards-grid">
-      {recurringTransactions.map((recurring) => {
-        const isIncome = recurring.type === 'income'
-        const typeClass = isIncome ? 'card-income' : 'card-expense'
-        const activeClass = !recurring.active ? 'card-inactive' : ''
+    <div className="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Descrição</th>
+            <th>Tipo</th>
+            <th>Vencimento</th>
+            <th>Categoria</th>
+            <th>Repetição</th>
+            <th>Valor</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          {recurringTransactions.map((recurring) => {
+            const isIncome = recurring.type === 'income'
+            const isActive = recurring.active
 
-        return (
-          <div key={recurring.id} className={`recurring-card ${typeClass} ${activeClass}`}>
-            <div className="recurring-card-header">
-              <h4>{recurring.description}</h4>
-              <span className={`badge ${isIncome ? 'badge-green' : 'badge-red'}`}>
-                {isIncome ? 'Receita' : 'Despesa'}
-              </span>
-            </div>
-            
-            <div className="recurring-card-body">
-              <div className="recurring-detail">
-                <span className="detail-label">Valor</span>
-                <span className={`detail-value ${isIncome ? 'text-success' : 'text-danger'}`}>
-                  {formatCurrency(Number(recurring.amount))}
-                </span>
-              </div>
-              <div className="recurring-detail">
-                <span className="detail-label">Vencimento</span>
-                <span className="detail-value">Dia {recurring.due_day}</span>
-              </div>
-              <div className="recurring-detail">
-                <span className="detail-label">Categoria</span>
-                <span className="detail-value">{recurring.category?.name ?? 'Sem categoria'}</span>
-              </div>
-              {recurring.installments && (
-                <div className="recurring-detail">
-                  <span className="detail-label">Parcelas geradas</span>
-                  <span className="detail-value">
-                    {recurring.generated_installments} / {recurring.installments}
+            return (
+              <tr key={recurring.id} style={{ opacity: isActive ? 1 : 0.6 }}>
+                <td>
+                  {recurring.description}
+                  {!isActive && <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem', display: 'block', fontWeight: 600 }}>Pausada</span>}
+                </td>
+                <td>
+                  <span className={`badge ${isIncome ? 'badge-green' : 'badge-red'}`}>
+                    {isIncome ? 'Receita' : 'Despesa'}
                   </span>
-                </div>
-              )}
-            </div>
-
-            <div className="recurring-card-footer">
-              <button
-                type="button"
-                className="secondary"
-                onClick={() => onToggleActive(recurring.id, !recurring.active)}
-                disabled={loadingId === recurring.id}
-              >
-                {recurring.active ? 'Pausar' : 'Ativar'}
-              </button>
-              <button
-                type="button"
-                className="danger"
-                onClick={() => onDelete(recurring.id)}
-                disabled={loadingId === recurring.id}
-              >
-                Excluir
-              </button>
-            </div>
-            
-            {!recurring.active && (
-              <div className="recurring-overlay-paused">
-                <span>Pausada</span>
-              </div>
-            )}
-          </div>
-        )
-      })}
+                </td>
+                <td>Dia {recurring.due_day}</td>
+                <td>{recurring.category?.name ?? '-'}</td>
+                <td>
+                  {recurring.installments 
+                    ? `${recurring.generated_installments} de ${recurring.installments}` 
+                    : 'Infinito'}
+                </td>
+                <td>{formatCurrency(Number(recurring.amount))}</td>
+                <td style={{ display: 'flex', gap: '8px' }}>
+                  <button
+                    type="button"
+                    className="ghost"
+                    onClick={() => onToggleActive(recurring.id, !isActive)}
+                    disabled={loadingId === recurring.id}
+                  >
+                    {isActive ? 'Pausar' : 'Retomar'}
+                  </button>
+                  <button
+                    type="button"
+                    className="danger"
+                    onClick={() => onDelete(recurring.id)}
+                    disabled={loadingId === recurring.id}
+                  >
+                    {loadingId === recurring.id ? '...' : 'Excluir'}
+                  </button>
+                </td>
+              </tr>
+            )
+          })}
+        </tbody>
+      </table>
     </div>
   )
 }
