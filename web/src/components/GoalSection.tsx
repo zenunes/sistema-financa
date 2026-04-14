@@ -65,7 +65,7 @@ export function GoalSection({ goals, onCreate, onDelete, onAddFunds }: GoalSecti
         <span className="badge-icon badge-purple">M</span>
         Metas
       </h2>
-      <form className="form-grid" onSubmit={handleSubmit}>
+      <form className="form-grid multi-col" onSubmit={handleSubmit}>
         <label>
           Título
           <input

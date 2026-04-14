@@ -92,7 +92,7 @@ export function RecurringForm({ categories, onSubmit, submitting }: RecurringFor
   })
 
   return (
-    <form className="form-grid" onSubmit={handleFormSubmit}>
+    <form className="form-grid multi-col" onSubmit={handleFormSubmit}>
       <label>
         Descrição
         <input

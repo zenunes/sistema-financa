@@ -89,7 +89,7 @@ export function TransactionForm({ categories, onSubmit, submitting, defaultValue
   })
 
   return (
-    <form className="form-grid" onSubmit={handleFormSubmit}>
+    <form className="form-grid multi-col" onSubmit={handleFormSubmit}>
       <label>
         Descrição
         <input

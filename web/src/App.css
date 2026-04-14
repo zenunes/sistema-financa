@@ -7,6 +7,16 @@
   gap: 18px;
 }
 
+@media (max-width: 600px) {
+  .app-shell {
+    padding: 16px 12px 24px;
+    gap: 16px;
+  }
+  .card {
+    padding: 16px;
+  }
+}
+
 .card {
   background: var(--card-bg);
   border: 1px solid var(--border);
@@ -22,10 +32,31 @@
   gap: 12px;
   background: linear-gradient(120deg, #1f4ed8, #7c3aed);
   color: #fff;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 480px) {
+  .topbar {
+    flex-direction: column;
+    text-align: center;
+    justify-content: center;
+    padding: 24px 18px;
+  }
+  .topbar button {
+    width: 100%;
+    margin-top: 8px;
+  }
+}
+
+.topbar h1 {
+  font-size: 1.25rem;
+  margin: 0;
 }
 
 .topbar .muted {
   color: rgba(255, 255, 255, 0.85);
+  font-size: 0.9rem;
+  margin: 0;
 }
 
 .topbar button {
@@ -37,7 +68,13 @@
 .summary-grid {
   display: grid;
   gap: 12px;
-  grid-template-columns: repeat(1, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (max-width: 400px) {
+  .summary-grid {
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+  }
 }
 
 .dual-grid {
@@ -79,8 +116,27 @@
 
 .form-grid {
   display: grid;
-  gap: 10px;
+  gap: 12px;
   margin-top: 12px;
+}
+
+.form-grid.multi-col {
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 640px) {
+  .form-grid.multi-col {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .form-grid.multi-col button[type="submit"] {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (min-width: 980px) {
+  .form-grid.multi-col {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 
 .form-grid.inline {
@@ -155,6 +211,7 @@ button:disabled {
 
 .table-wrapper {
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
   margin-top: 14px;
 }
 
@@ -173,6 +230,7 @@ th {
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  white-space: nowrap;
 }
 
 td {
@@ -182,6 +240,13 @@ td {
   font-size: 0.95rem;
   color: var(--text);
   vertical-align: middle;
+  white-space: nowrap;
+}
+
+@media (max-width: 600px) {
+  th, td {
+    padding: 10px 12px;
+  }
 }
 
 .empty-row {
@@ -321,10 +386,6 @@ td {
 }
 
 @media (min-width: 700px) {
-  .summary-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
   .form-grid.inline {
     grid-template-columns: 2fr 1fr auto;
     align-items: end;
@@ -376,6 +437,7 @@ td {
   border: 1px solid var(--border);
   box-shadow: 0 4px 12px rgba(0,0,0,0.03);
   width: fit-content;
+  max-width: 100%;
   margin-left: auto;
   margin-right: auto;
 }
