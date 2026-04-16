@@ -93,13 +93,20 @@ export function exportTransactionsPdf(transactions: Transaction[], month: string
           h1 { font-size: 18px; margin: 0 0 8px; }
           .meta { display: flex; gap: 16px; flex-wrap: wrap; color: #374151; font-size: 12px; margin: 0 0 16px; }
           .chip { background: #f3f4f6; border: 1px solid #e5e7eb; border-radius: 999px; padding: 6px 10px; }
+          .toolbar { position: sticky; top: 0; background: #ffffffcc; backdrop-filter: blur(8px); padding: 10px 0 12px; border-bottom: 1px solid #e5e7eb; margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+          .btn { appearance: none; border: 1px solid #d1d5db; background: #111827; color: #fff; padding: 10px 12px; border-radius: 10px; font-weight: 700; font-size: 12px; cursor: pointer; }
+          .hint { color: #6b7280; font-size: 12px; line-height: 1.35; }
           table { width: 100%; border-collapse: collapse; margin-top: 14px; }
           th, td { border-bottom: 1px solid #e5e7eb; padding: 10px 8px; text-align: left; vertical-align: top; font-size: 12px; }
           th { text-transform: uppercase; letter-spacing: 0.06em; font-size: 11px; color: #6b7280; }
-          @media print { body { margin: 0; } }
+          @media print { body { margin: 0; } .toolbar { display: none; } }
         </style>
       </head>
       <body>
+        <div class="toolbar">
+          <button class="btn" type="button" onclick="window.print()">Imprimir / Salvar PDF</button>
+          <div class="hint">No iPhone: Compartilhar → Imprimir → (pinçar para abrir) → Compartilhar → Salvar em Arquivos.</div>
+        </div>
         <h1>${escapeHtml(title)}</h1>
         <div class="meta">
           <span class="chip">Receitas pagas: ${escapeHtml(formatCurrency(income))}</span>
@@ -122,20 +129,22 @@ export function exportTransactionsPdf(transactions: Transaction[], month: string
             ${rows}
           </tbody>
         </table>
-        <script>
-          window.addEventListener('load', () => {
-            setTimeout(() => window.print(), 50)
-          })
-        </script>
       </body>
     </html>
   `
 
-  const win = window.open('', '_blank', 'noopener,noreferrer')
-  if (!win) return
-  win.document.open()
-  win.document.write(html)
-  win.document.close()
-  win.focus()
-}
+  const blob = new Blob([html], { type: 'text/html;charset=utf-8' })
+  const url = URL.createObjectURL(blob)
 
+  const win = window.open(url, '_blank', 'noopener,noreferrer')
+  if (!win) {
+    const link = document.createElement('a')
+    link.href = url
+    link.target = '_blank'
+    document.body.appendChild(link)
+    link.click()
+    link.remove()
+  }
+
+  setTimeout(() => URL.revokeObjectURL(url), 60_000)
+}
