@@ -472,6 +472,16 @@ td {
   flex-wrap: wrap;
 }
 
+.section-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.section-actions button {
+  padding: 8px 12px;
+}
+
 @media (min-width: 700px) {
   .form-grid.inline {
     grid-template-columns: 2fr 1fr auto;

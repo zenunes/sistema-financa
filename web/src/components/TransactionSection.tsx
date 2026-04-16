@@ -1,11 +1,13 @@
 import { useState } from 'react'
 import type { Category, Transaction, TransactionType } from '../types/finance'
+import { exportTransactionsCsv, exportTransactionsPdf } from '../lib/export'
 import { TransactionForm } from './TransactionForm'
 import { TransactionList } from './TransactionList'
 
 interface TransactionSectionProps {
   categories: Category[]
   transactions: Transaction[]
+  month: string
   onCreate: (params: {
     description: string
     amount: number
@@ -30,6 +32,7 @@ interface TransactionSectionProps {
 export function TransactionSection({
   categories,
   transactions,
+  month,
   onCreate,
   onUpdate,
   onDelete,
@@ -68,6 +71,24 @@ export function TransactionSection({
     <section className="card">
       <div className="section-head">
         <h2>Lançamentos</h2>
+        <div className="section-actions">
+          <button
+            type="button"
+            className="ghost"
+            onClick={() => exportTransactionsCsv(transactions, month)}
+            disabled={transactions.length === 0}
+          >
+            Exportar CSV
+          </button>
+          <button
+            type="button"
+            className="ghost"
+            onClick={() => exportTransactionsPdf(transactions, month)}
+            disabled={transactions.length === 0}
+          >
+            Exportar PDF
+          </button>
+        </div>
       </div>
 
       {editingTransaction ? (

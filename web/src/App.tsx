@@ -280,6 +280,7 @@ function App() {
               <TransactionSection
                 categories={categories}
                 transactions={transactions.filter(t => t.transaction_date.startsWith(currentMonth))}
+                month={currentMonth}
                 onCreate={handleCreateTransaction}
                 onUpdate={handleUpdateTransaction}
                 onDelete={handleDeleteTransaction}
