@@ -34,11 +34,10 @@ export function MonthSelector({ currentMonth, onChangeMonth }: MonthSelectorProp
       <button type="button" className="ghost" onClick={handlePrev}>
         &#8592;
       </button>
-      <div 
-        className="month-display" 
-        onClick={handleCurrent} 
+      <div
+        className="month-display"
+        onClick={handleCurrent}
         title="Voltar para o mês atual"
-        style={{ cursor: 'pointer', fontWeight: 600, minWidth: '130px', textAlign: 'center' }}
       >
         {capitalizedMonthName}
       </div>

@@ -429,10 +429,10 @@ td {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 16px;
+  gap: 12px;
   margin-bottom: 24px;
   background: var(--card-bg);
-  padding: 8px 16px;
+  padding: 8px 12px;
   border-radius: 20px;
   border: 1px solid var(--border);
   box-shadow: 0 4px 12px rgba(0,0,0,0.03);
@@ -440,6 +440,7 @@ td {
   max-width: 100%;
   margin-left: auto;
   margin-right: auto;
+  flex-wrap: wrap;
 }
 .month-selector button {
   padding: 4px 12px;
@@ -452,9 +453,27 @@ td {
 .month-display {
   user-select: none;
   transition: color 0.2s;
+  cursor: pointer;
+  font-weight: 600;
+  min-width: 0;
+  text-align: center;
 }
 .month-display:hover {
   color: var(--primary);
+}
+
+@media (max-width: 420px) {
+  .month-selector {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .month-selector button {
+    padding: 4px 10px;
+    font-size: 1rem;
+  }
+  .month-display {
+    flex: 1;
+  }
 }
 
 .charts-grid {
