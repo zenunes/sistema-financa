@@ -1,5 +1,6 @@
 import type { Goal, Transaction } from '../types/finance'
 import { formatCurrency } from '../lib/format'
+import { useLocalStorageBoolean } from '../hooks/useLocalStorageBoolean'
 
 interface SummaryCardsProps {
   transactions: Transaction[]
@@ -8,6 +9,7 @@ interface SummaryCardsProps {
 }
 
 export function SummaryCards({ transactions, goals, currentMonth }: SummaryCardsProps) {
+  const [showGoalAmounts] = useLocalStorageBoolean('pf_show_goal_amounts', true)
   const currentMonthTransactions = transactions.filter(
     (t) => t.transaction_date.startsWith(currentMonth)
   )
@@ -59,7 +61,9 @@ export function SummaryCards({ transactions, goals, currentMonth }: SummaryCards
           Metas
         </h2>
         <strong>
-          {formatCurrency(goalCurrent)} / {formatCurrency(goalTarget)}
+          {showGoalAmounts
+            ? `${formatCurrency(goalCurrent)} / ${formatCurrency(goalTarget)}`
+            : '••••••'}
         </strong>
       </article>
     </section>

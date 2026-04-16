@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { formatCurrency, formatDate } from '../lib/format'
+import { useLocalStorageBoolean } from '../hooks/useLocalStorageBoolean'
 import type { Goal } from '../types/finance'
 
 interface GoalSectionProps {
@@ -15,6 +16,7 @@ interface GoalSectionProps {
 }
 
 export function GoalSection({ goals, onCreate, onDelete, onAddFunds }: GoalSectionProps) {
+  const [showGoalAmounts, setShowGoalAmounts] = useLocalStorageBoolean('pf_show_goal_amounts', true)
   const [title, setTitle] = useState('')
   const [targetAmount, setTargetAmount] = useState('')
   const [currentAmount, setCurrentAmount] = useState('')
@@ -61,10 +63,23 @@ export function GoalSection({ goals, onCreate, onDelete, onAddFunds }: GoalSecti
 
   return (
     <section className="card">
-      <h2>
-        <span className="badge-icon badge-purple">M</span>
-        Metas
-      </h2>
+      <div className="section-head">
+        <h2>
+          <span className="badge-icon badge-purple">M</span>
+          Metas
+        </h2>
+        <div className="section-actions">
+          <button
+            type="button"
+            className="ghost"
+            onClick={() => setShowGoalAmounts((prev) => !prev)}
+            title={showGoalAmounts ? 'Ocultar valores' : 'Mostrar valores'}
+            aria-label={showGoalAmounts ? 'Ocultar valores' : 'Mostrar valores'}
+          >
+            {showGoalAmounts ? '👁️' : '🙈'}
+          </button>
+        </div>
+      </div>
       <form className="form-grid" onSubmit={handleSubmit}>
         <label>
           Título
@@ -121,12 +136,20 @@ export function GoalSection({ goals, onCreate, onDelete, onAddFunds }: GoalSecti
                 </button>
               </header>
               <p>
-                {formatCurrency(Number(goal.current_amount))} de{' '}
-                {formatCurrency(Number(goal.target_amount))}
+                {showGoalAmounts ? (
+                  <>
+                    {formatCurrency(Number(goal.current_amount))} de{' '}
+                    {formatCurrency(Number(goal.target_amount))}
+                  </>
+                ) : (
+                  '••••••'
+                )}
               </p>
-              <p className="muted" style={{ marginBottom: '0.5rem' }}>Prazo: {formatDate(goal.due_date)}</p>
+              <p className="muted" style={{ marginBottom: '0.5rem' }}>
+                Prazo: {showGoalAmounts ? formatDate(goal.due_date) : '••/••/••••'}
+              </p>
               <div className="progress-bar" style={{ marginBottom: '1rem' }}>
-                <span style={{ width: `${progress}%` }} />
+                <span style={{ width: `${showGoalAmounts ? progress : 0}%` }} />
               </div>
               
               {depositGoalId === goal.id ? (
