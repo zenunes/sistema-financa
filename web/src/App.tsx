@@ -2,6 +2,7 @@ import { useAuth } from './hooks/useAuth'
 import { useTransactions } from './hooks/useTransactions'
 import { useCategories } from './hooks/useCategories'
 import { useGoals } from './hooks/useGoals'
+import { useLocalStorageBoolean } from './hooks/useLocalStorageBoolean'
 import { useRecurringTransactions } from './hooks/useRecurringTransactions'
 import { useState, useEffect } from 'react'
 import { AuthView } from './components/AuthView'
@@ -23,6 +24,7 @@ function App() {
   const [error, setError] = useState('')
   const [info, setInfo] = useState('')
   const [currentMonth, setCurrentMonth] = useState(() => new Date().toISOString().slice(0, 7))
+  const [showGoalAmounts, setShowGoalAmounts] = useLocalStorageBoolean('pf_show_goal_amounts', true)
 
   const {
     transactions,
@@ -249,9 +251,19 @@ function App() {
               <h1>Finanças Pessoais</h1>
               <p className="muted">{session.user.email}</p>
             </div>
-            <button type="button" onClick={onLogout}>
-              Sair
-            </button>
+            <div className="topbar-actions">
+              <button
+                type="button"
+                onClick={() => setShowGoalAmounts((prev) => !prev)}
+                title={showGoalAmounts ? 'Ocultar metas' : 'Mostrar metas'}
+                aria-label={showGoalAmounts ? 'Ocultar metas' : 'Mostrar metas'}
+              >
+                {showGoalAmounts ? '👁️' : '🙈'}
+              </button>
+              <button type="button" onClick={onLogout}>
+                Sair
+              </button>
+            </div>
           </header>
 
           {isInitialLoading && <p className="status">Carregando dados...</p>}
@@ -262,7 +274,12 @@ function App() {
             <>
               <MonthSelector currentMonth={currentMonth} onChangeMonth={setCurrentMonth} />
 
-              <SummaryCards transactions={transactions} goals={goals} currentMonth={currentMonth} />
+              <SummaryCards
+                transactions={transactions}
+                goals={goals}
+                currentMonth={currentMonth}
+                showGoalAmounts={showGoalAmounts}
+              />
 
               <div className="charts-grid">
                 <DashboardChart transactions={transactions} currentMonth={currentMonth} />
@@ -299,6 +316,7 @@ function App() {
                   onCreate={handleCreateGoal}
                   onDelete={handleDeleteGoal}
                   onAddFunds={handleAddFundsGoal}
+                  showGoalAmounts={showGoalAmounts}
                 />
               </div>
             </>

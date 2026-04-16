@@ -1,15 +1,14 @@
 import type { Goal, Transaction } from '../types/finance'
 import { formatCurrency } from '../lib/format'
-import { useLocalStorageBoolean } from '../hooks/useLocalStorageBoolean'
 
 interface SummaryCardsProps {
   transactions: Transaction[]
   goals: Goal[]
   currentMonth: string
+  showGoalAmounts: boolean
 }
 
-export function SummaryCards({ transactions, goals, currentMonth }: SummaryCardsProps) {
-  const [showGoalAmounts] = useLocalStorageBoolean('pf_show_goal_amounts', true)
+export function SummaryCards({ transactions, goals, currentMonth, showGoalAmounts }: SummaryCardsProps) {
   const currentMonthTransactions = transactions.filter(
     (t) => t.transaction_date.startsWith(currentMonth)
   )

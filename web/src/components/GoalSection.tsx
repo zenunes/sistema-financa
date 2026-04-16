@@ -1,10 +1,10 @@
 import { useState, type FormEvent } from 'react'
 import { formatCurrency, formatDate } from '../lib/format'
-import { useLocalStorageBoolean } from '../hooks/useLocalStorageBoolean'
 import type { Goal } from '../types/finance'
 
 interface GoalSectionProps {
   goals: Goal[]
+  showGoalAmounts: boolean
   onCreate: (params: {
     title: string
     targetAmount: number
@@ -15,8 +15,7 @@ interface GoalSectionProps {
   onAddFunds: (id: string, amount: number) => Promise<void>
 }
 
-export function GoalSection({ goals, onCreate, onDelete, onAddFunds }: GoalSectionProps) {
-  const [showGoalAmounts, setShowGoalAmounts] = useLocalStorageBoolean('pf_show_goal_amounts', true)
+export function GoalSection({ goals, showGoalAmounts, onCreate, onDelete, onAddFunds }: GoalSectionProps) {
   const [title, setTitle] = useState('')
   const [targetAmount, setTargetAmount] = useState('')
   const [currentAmount, setCurrentAmount] = useState('')
@@ -63,23 +62,10 @@ export function GoalSection({ goals, onCreate, onDelete, onAddFunds }: GoalSecti
 
   return (
     <section className="card">
-      <div className="section-head">
-        <h2>
-          <span className="badge-icon badge-purple">M</span>
-          Metas
-        </h2>
-        <div className="section-actions">
-          <button
-            type="button"
-            className="ghost"
-            onClick={() => setShowGoalAmounts((prev) => !prev)}
-            title={showGoalAmounts ? 'Ocultar valores' : 'Mostrar valores'}
-            aria-label={showGoalAmounts ? 'Ocultar valores' : 'Mostrar valores'}
-          >
-            {showGoalAmounts ? '👁️' : '🙈'}
-          </button>
-        </div>
-      </div>
+      <h2>
+        <span className="badge-icon badge-purple">M</span>
+        Metas
+      </h2>
       <form className="form-grid" onSubmit={handleSubmit}>
         <label>
           Título
