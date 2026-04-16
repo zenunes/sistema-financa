@@ -215,6 +215,11 @@ button:disabled {
   margin-top: 14px;
 }
 
+.actions-cell {
+  display: flex;
+  gap: 8px;
+}
+
 table {
   width: 100%;
   border-collapse: collapse;
@@ -246,6 +251,82 @@ td {
 @media (max-width: 600px) {
   th, td {
     padding: 10px 12px;
+  }
+}
+
+@media (max-width: 680px) {
+  .table-wrapper {
+    overflow: visible;
+  }
+
+  table {
+    min-width: 0;
+  }
+
+  thead {
+    display: none;
+  }
+
+  tbody {
+    display: block;
+  }
+
+  tr {
+    display: block;
+    margin: 12px 0;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: var(--card-bg);
+    overflow: hidden;
+  }
+
+  td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    white-space: normal;
+  }
+
+  td::before {
+    content: attr(data-label);
+    flex: 0 0 auto;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+  }
+
+  td:first-child {
+    align-items: flex-start;
+  }
+
+  td:last-child {
+    border-bottom: none;
+  }
+
+  td.actions-cell {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  td.actions-cell::before {
+    margin-bottom: 6px;
+  }
+
+  td.actions-cell button {
+    width: 100%;
+  }
+
+  .empty-row {
+    display: block;
+    text-align: center;
+  }
+
+  .empty-row::before {
+    content: none;
   }
 }
 

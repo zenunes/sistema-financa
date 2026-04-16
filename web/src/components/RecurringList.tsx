@@ -39,24 +39,24 @@ export function RecurringList({
 
             return (
               <tr key={recurring.id} style={{ opacity: isActive ? 1 : 0.6 }}>
-                <td>
+                <td data-label="Descrição">
                   {recurring.description}
                   {!isActive && <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem', display: 'block', fontWeight: 600 }}>Pausada</span>}
                 </td>
-                <td>
+                <td data-label="Tipo">
                   <span className={`badge ${isIncome ? 'badge-green' : 'badge-red'}`}>
                     {isIncome ? 'Receita' : 'Despesa'}
                   </span>
                 </td>
-                <td>Dia {recurring.due_day}</td>
-                <td>{recurring.category?.name ?? '-'}</td>
-                <td>
+                <td data-label="Vencimento">Dia {recurring.due_day}</td>
+                <td data-label="Categoria">{recurring.category?.name ?? '-'}</td>
+                <td data-label="Repetição">
                   {recurring.installments 
                     ? `${recurring.generated_installments} de ${recurring.installments}` 
                     : 'Infinito'}
                 </td>
-                <td>{formatCurrency(Number(recurring.amount))}</td>
-                <td style={{ display: 'flex', gap: '8px' }}>
+                <td data-label="Valor">{formatCurrency(Number(recurring.amount))}</td>
+                <td data-label="Ações" className="actions-cell">
                   <button
                     type="button"
                     className="ghost"

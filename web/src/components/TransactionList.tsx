@@ -54,25 +54,25 @@ export function TransactionList({
 
             return (
             <tr key={transaction.id} style={rowStyle}>
-              <td>
+              <td data-label="Descrição">
                 {transaction.description}
                 {isOverdue && <span style={{ color: '#ef4444', fontSize: '0.75rem', display: 'block', fontWeight: 600 }}>Atrasado</span>}
                 {isNearDue && <span style={{ color: '#f59e0b', fontSize: '0.75rem', display: 'block', fontWeight: 600 }}>Vence hoje</span>}
               </td>
-              <td>
+              <td data-label="Tipo">
                 <span className={`badge ${transaction.type === 'income' ? 'badge-green' : 'badge-red'}`}>
                   {transaction.type === 'income' ? 'Receita' : 'Despesa'}
                 </span>
               </td>
-              <td>
+              <td data-label="Status">
                 <span className={`badge ${transaction.status === 'paid' ? 'badge-blue' : 'badge-purple'}`}>
                   {transaction.status === 'paid' ? 'Pago' : 'Pendente'}
                 </span>
               </td>
-              <td>{transaction.category?.name ?? '-'}</td>
-              <td>{formatDate(transaction.transaction_date)}</td>
-              <td>{formatCurrency(Number(transaction.amount))}</td>
-              <td style={{ display: 'flex', gap: '8px' }}>
+              <td data-label="Categoria">{transaction.category?.name ?? '-'}</td>
+              <td data-label="Data">{formatDate(transaction.transaction_date)}</td>
+              <td data-label="Valor">{formatCurrency(Number(transaction.amount))}</td>
+              <td data-label="Ações" className="actions-cell">
                 <button
                   type="button"
                   className="ghost"
