@@ -18,8 +18,16 @@ export function RecurringList({
     return <p className="muted">Nenhuma despesa ou receita recorrente cadastrada.</p>
   }
 
+  const activeExpense = recurringTransactions
+    .filter((t) => t.type === 'expense' && t.active)
+    .reduce((acc, t) => acc + Number(t.amount), 0)
+
+  const activeIncome = recurringTransactions
+    .filter((t) => t.type === 'income' && t.active)
+    .reduce((acc, t) => acc + Number(t.amount), 0)
+
   return (
-    <div className="table-wrapper">
+    <div className="table-wrapper" style={{ display: 'flex', flexDirection: 'column' }}>
       <table>
         <thead>
           <tr>
@@ -79,6 +87,31 @@ export function RecurringList({
           })}
         </tbody>
       </table>
+      
+      <div style={{ 
+        display: 'flex', 
+        flexWrap: 'wrap',
+        justifyContent: 'flex-end', 
+        gap: '24px', 
+        padding: '16px', 
+        background: 'var(--surface-alt)',
+        borderBottomLeftRadius: 'var(--radius)',
+        borderBottomRightRadius: 'var(--radius)',
+        marginTop: '1px'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span className="muted">Despesas estimadas:</span>
+          <strong style={{ color: 'var(--danger)', fontSize: '1.1rem' }}>
+            {formatCurrency(activeExpense)}
+          </strong>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span className="muted">Receitas estimadas:</span>
+          <strong style={{ color: 'var(--success)', fontSize: '1.1rem' }}>
+            {formatCurrency(activeIncome)}
+          </strong>
+        </div>
+      </div>
     </div>
   )
 }
