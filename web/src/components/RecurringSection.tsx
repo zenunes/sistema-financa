@@ -11,6 +11,7 @@ interface RecurringSectionProps {
     amount: number
     type: TransactionType
     dueDay: number
+    startMonth?: string
     categoryId?: string
     installments?: number
   }) => Promise<void>

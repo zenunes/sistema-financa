@@ -31,6 +31,7 @@ export interface RecurringTransaction {
   amount: number
   type: TransactionType
   due_day: number
+  start_month: string | null
   active: boolean
   installments: number | null
   generated_installments: number

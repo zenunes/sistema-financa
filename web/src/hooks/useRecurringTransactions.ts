@@ -29,10 +29,11 @@ export async function generateRecurringTransactionsForMonth(userId: string, mont
   if (recurringError) throw new Error(`Falha ao buscar recorrências ativas: ${recurringError.message}`)
   if (!recurringData || recurringData.length === 0) return 0
 
-  // Filtrar recorrências que já atingiram o limite de parcelas
-  const validRecurringData = recurringData.filter(
-    (item) => item.installments === null || item.generated_installments < item.installments
-  )
+  const validRecurringData = recurringData.filter((item) => {
+    const withinInstallments = item.installments === null || item.generated_installments < item.installments
+    const startMonth = item.start_month ? String(item.start_month).slice(0, 10) : monthStartText
+    return withinInstallments && startMonth <= monthStartText
+  })
 
   if (validRecurringData.length === 0) return 0
 
@@ -126,10 +127,13 @@ export function useRecurringTransactions(userId: string | undefined) {
       amount: number
       type: TransactionType
       dueDay: number
+      startMonth?: string
       categoryId?: string
       installments?: number
     }) => {
-      const { error } = await supabase.from('recurring_transactions').insert({
+      const startMonth = (params.startMonth ?? new Date().toISOString().slice(0, 7)) + '-01'
+
+      const payloadWithStart = {
         user_id: userId!,
         description: params.description,
         amount: params.amount,
@@ -139,8 +143,21 @@ export function useRecurringTransactions(userId: string | undefined) {
         active: true,
         installments: params.installments ?? null,
         generated_installments: 0,
-      })
-      if (error) throw new Error(error.message)
+        start_month: startMonth,
+      } as any
+
+      const { error } = await supabase.from('recurring_transactions').insert(payloadWithStart)
+      if (!error) return
+
+      const message = error.message ?? ''
+      const isMissingColumn = /start_month/i.test(message) && /column|does not exist|schema cache/i.test(message)
+      if (!isMissingColumn) throw new Error(message)
+
+      const payloadWithoutStart = { ...payloadWithStart }
+      delete payloadWithoutStart.start_month
+
+      const { error: fallbackError } = await supabase.from('recurring_transactions').insert(payloadWithoutStart)
+      if (fallbackError) throw new Error(fallbackError.message)
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: financeKeys.recurring(userId) })

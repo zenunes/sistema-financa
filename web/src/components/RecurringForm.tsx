@@ -16,6 +16,10 @@ const recurringSchema = z.object({
     .number({ message: 'Informe o dia' })
     .min(1, 'O dia deve ser entre 1 e 31')
     .max(31, 'O dia deve ser entre 1 e 31'),
+  startMonth: z
+    .string()
+    .optional()
+    .refine((val) => !val || /^\d{4}-\d{2}$/.test(val), 'Informe um mês válido'),
   categoryId: z.string().optional(),
   installments: z.string().optional(),
 })
@@ -29,6 +33,7 @@ interface RecurringFormProps {
     amount: number
     type: TransactionType
     dueDay: number
+    startMonth?: string
     categoryId?: string
     installments?: number
   }) => Promise<void>
@@ -52,6 +57,7 @@ export function RecurringForm({ categories, onSubmit, submitting }: RecurringFor
       categoryId: '',
       dueDay: 1,
       installments: '',
+      startMonth: new Date().toISOString().slice(0, 7),
     },
   })
 
@@ -75,6 +81,7 @@ export function RecurringForm({ categories, onSubmit, submitting }: RecurringFor
         amount: parseCurrencyInput(data.amount),
         type: data.type,
         dueDay: data.dueDay,
+        startMonth: data.startMonth || undefined,
         categoryId: data.categoryId || undefined,
         installments: parsedInstallments && parsedInstallments > 0 ? parsedInstallments : undefined,
       })
@@ -85,6 +92,7 @@ export function RecurringForm({ categories, onSubmit, submitting }: RecurringFor
         categoryId: '',
         dueDay: 1,
         installments: '',
+        startMonth: data.startMonth,
       })
     } catch (err) {
       console.error('Erro ao submeter form:', err)
@@ -135,6 +143,16 @@ export function RecurringForm({ categories, onSubmit, submitting }: RecurringFor
           className={errors.dueDay ? 'input-error' : ''}
         />
         {errors.dueDay && <span className="error-text">{errors.dueDay.message}</span>}
+      </label>
+
+      <label>
+        Mês base
+        <input
+          {...register('startMonth')}
+          type="month"
+          className={errors.startMonth ? 'input-error' : ''}
+        />
+        {errors.startMonth && <span className="error-text">{errors.startMonth.message}</span>}
       </label>
 
       <label>

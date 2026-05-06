@@ -1,6 +1,13 @@
 import { formatCurrency } from '../lib/format'
 import type { RecurringTransaction } from '../types/finance'
 
+function monthLabel(value: string) {
+  const [y, m] = value.slice(0, 7).split('-').map(Number)
+  const date = new Date(Number(y), Number(m) - 1, 1)
+  const label = date.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })
+  return label.charAt(0).toUpperCase() + label.slice(1)
+}
+
 interface RecurringListProps {
   recurringTransactions: RecurringTransaction[]
   onToggleActive: (id: string, active: boolean) => void
@@ -18,6 +25,7 @@ export function RecurringList({
     return <p className="muted">Nenhuma despesa ou receita recorrente cadastrada.</p>
   }
 
+  const currentMonth = new Date().toISOString().slice(0, 7)
   const activeExpense = recurringTransactions
     .filter((t) => t.type === 'expense' && t.active)
     .reduce((acc, t) => acc + Number(t.amount), 0)
@@ -44,12 +52,19 @@ export function RecurringList({
           {recurringTransactions.map((recurring) => {
             const isIncome = recurring.type === 'income'
             const isActive = recurring.active
+            const startMonth = recurring.start_month ? recurring.start_month.slice(0, 7) : null
+            const startsInFuture = !!startMonth && startMonth > currentMonth
 
             return (
               <tr key={recurring.id} style={{ opacity: isActive ? 1 : 0.6 }}>
                 <td data-label="Descrição">
                   {recurring.description}
                   {!isActive && <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem', display: 'block', fontWeight: 600 }}>Pausada</span>}
+                  {startsInFuture && (
+                    <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem', display: 'block', fontWeight: 600 }}>
+                      Inicia em {monthLabel(startMonth)}
+                    </span>
+                  )}
                 </td>
                 <td data-label="Tipo">
                   <span className={`badge ${isIncome ? 'badge-green' : 'badge-red'}`}>
