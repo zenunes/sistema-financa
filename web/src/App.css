@@ -260,6 +260,44 @@ td {
   white-space: nowrap;
 }
 
+tbody tr:not(.table-divider):hover {
+  background: rgba(59, 130, 246, 0.04);
+}
+
+.row-pending {
+  opacity: 0.9;
+}
+
+.row-overdue {
+  background: rgba(239, 68, 68, 0.06);
+  border-left: 3px solid var(--danger);
+}
+
+.row-near-due {
+  background: rgba(245, 158, 11, 0.06);
+  border-left: 3px solid #f59e0b;
+}
+
+.row-paid {
+  background: rgba(16, 185, 129, 0.07);
+  border-left: 3px solid var(--success);
+}
+
+.row-paid:hover {
+  background: rgba(16, 185, 129, 0.11);
+}
+
+.table-divider td {
+  padding: 10px 16px;
+  border-bottom: 0;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: transparent;
+}
+
 @media (max-width: 600px) {
   th, td {
     padding: 10px 12px;
@@ -290,6 +328,19 @@ td {
     border-radius: 14px;
     background: var(--card-bg);
     overflow: hidden;
+  }
+
+  tr.row-overdue,
+  tr.row-near-due,
+  tr.row-paid {
+    border-left-width: 4px;
+  }
+
+  tr.table-divider {
+    margin: 16px 0 6px;
+    border: none;
+    border-radius: 0;
+    background: transparent;
   }
 
   td {
@@ -330,6 +381,14 @@ td {
 
   td.actions-cell button {
     width: 100%;
+  }
+
+  tr.table-divider td {
+    padding: 0 4px 6px;
+  }
+
+  tr.table-divider td::before {
+    content: none;
   }
 
   .empty-row {

@@ -17,6 +17,13 @@ export function TransactionList({
   loadingId,
 }: TransactionListProps) {
   const today = new Date().toISOString().slice(0, 10)
+  const sortedTransactions = [...transactions].sort((a, b) => {
+    const aPaid = a.status === 'paid'
+    const bPaid = b.status === 'paid'
+    if (aPaid !== bPaid) return aPaid ? 1 : -1
+    return b.transaction_date.localeCompare(a.transaction_date)
+  })
+  const firstPaidIndex = sortedTransactions.findIndex((t) => t.status === 'paid')
 
   return (
     <div className="table-wrapper">
@@ -33,27 +40,27 @@ export function TransactionList({
           </tr>
         </thead>
         <tbody>
-          {transactions.length === 0 && (
+          {sortedTransactions.length === 0 && (
             <tr>
               <td colSpan={7} className="empty-row">
                 Nenhum lançamento cadastrado.
               </td>
             </tr>
           )}
-          {transactions.map((transaction) => {
+          {sortedTransactions.slice(0, firstPaidIndex > 0 ? firstPaidIndex : sortedTransactions.length).map((transaction) => {
             const isPending = transaction.status === 'pending'
             const isOverdue = isPending && transaction.transaction_date < today
             const isNearDue = isPending && transaction.transaction_date === today
-            
-            let rowStyle = {}
-            if (isPending) {
-              rowStyle = { opacity: 0.85 }
-              if (isOverdue) rowStyle = { ...rowStyle, background: 'rgba(239, 68, 68, 0.05)', borderLeft: '3px solid #ef4444' }
-              else if (isNearDue) rowStyle = { ...rowStyle, background: 'rgba(245, 158, 11, 0.05)', borderLeft: '3px solid #f59e0b' }
-            }
+            const rowClass = isOverdue
+              ? 'row-overdue'
+              : isNearDue
+                ? 'row-near-due'
+                : isPending
+                  ? 'row-pending'
+                  : 'row-paid'
 
             return (
-            <tr key={transaction.id} style={rowStyle}>
+            <tr key={transaction.id} className={rowClass}>
               <td data-label="Descrição">
                 {transaction.description}
                 {isOverdue && <span style={{ color: '#ef4444', fontSize: '0.75rem', display: 'block', fontWeight: 600 }}>Atrasado</span>}
@@ -103,6 +110,58 @@ export function TransactionList({
               </td>
             </tr>
           )})}
+          {firstPaidIndex > 0 && firstPaidIndex < sortedTransactions.length && (
+            <tr className="table-divider">
+              <td colSpan={7}>Pagos</td>
+            </tr>
+          )}
+          {firstPaidIndex > 0 && sortedTransactions.slice(firstPaidIndex).map((transaction) => {
+            return (
+              <tr key={transaction.id} className="row-paid">
+                <td data-label="Descrição">{transaction.description}</td>
+                <td data-label="Tipo">
+                  <span className={`badge ${transaction.type === 'income' ? 'badge-green' : 'badge-red'}`}>
+                    {transaction.type === 'income' ? 'Receita' : 'Despesa'}
+                  </span>
+                </td>
+                <td data-label="Status">
+                  <span className="badge badge-blue">Pago</span>
+                </td>
+                <td data-label="Categoria">{transaction.category?.name ?? '-'}</td>
+                <td data-label="Data">{formatDate(transaction.transaction_date)}</td>
+                <td data-label="Valor">{formatCurrency(Number(transaction.amount))}</td>
+                <td data-label="Ações" className="actions-cell">
+                  <button
+                    type="button"
+                    className="ghost"
+                    onClick={() => onToggleStatus(transaction.id, transaction.status)}
+                    disabled={loadingId === transaction.id}
+                  >
+                    Desfazer
+                  </button>
+                  {onEdit && (
+                    <button
+                      type="button"
+                      className="ghost"
+                      onClick={() => onEdit(transaction)}
+                      disabled={loadingId === transaction.id}
+                      title="Editar"
+                    >
+                      ✏️
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    className="danger"
+                    onClick={() => onDelete(transaction.id)}
+                    disabled={loadingId === transaction.id}
+                  >
+                    {loadingId === transaction.id ? '...' : 'Excluir'}
+                  </button>
+                </td>
+              </tr>
+            )
+          })}
         </tbody>
       </table>
     </div>
