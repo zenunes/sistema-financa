@@ -6,6 +6,9 @@ import { RecurringList } from './RecurringList'
 interface RecurringSectionProps {
   categories: Category[]
   recurringTransactions: RecurringTransaction[]
+  selectedMonth: string
+  generating: boolean
+  onGenerateMonth: (month: string) => Promise<void>
   onCreate: (params: {
     description: string
     amount: number
@@ -22,11 +25,15 @@ interface RecurringSectionProps {
 export function RecurringSection({
   categories,
   recurringTransactions,
+  selectedMonth,
+  generating,
+  onGenerateMonth,
   onCreate,
   onToggleActive,
   onDelete,
 }: RecurringSectionProps) {
   const [loadingId, setLoadingId] = useState<string | null>(null)
+  const nowMonth = new Date().toISOString().slice(0, 7)
 
   async function handleToggleActive(id: string, active: boolean) {
     setLoadingId(id)
@@ -47,13 +54,43 @@ export function RecurringSection({
   }
 
   return (
-    <section className="card">
-      <div className="recurring-card-header" style={{ padding: '0 0 1rem 0' }}>
+    <section className="card card-recurring">
+      <div className="section-head">
         <h2>Despesas e Receitas Recorrentes</h2>
+        <div className="section-actions">
+          <button
+            type="button"
+            className="ghost"
+            onClick={() => onGenerateMonth(nowMonth)}
+            disabled={generating}
+          >
+            {generating ? 'Gerando...' : `Gerar mês atual (${nowMonth})`}
+          </button>
+          {selectedMonth !== nowMonth && (
+            <button
+              type="button"
+              className="ghost"
+              onClick={() => {
+                if (
+                  selectedMonth > nowMonth &&
+                  !window.confirm(
+                    `Isso vai gerar lançamentos recorrentes para ${selectedMonth}. Quer continuar?`,
+                  )
+                ) {
+                  return
+                }
+                onGenerateMonth(selectedMonth)
+              }}
+              disabled={generating}
+            >
+              {generating ? 'Gerando...' : `Gerar para ${selectedMonth}`}
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="alert-info">
-        Cadastre contas fixas ou receitas mensais aqui. O sistema vai gerar automaticamente as pendências na lista principal de lançamentos no início de cada mês.
+        Cadastre contas fixas ou receitas mensais aqui. O sistema gera automaticamente no início de cada mês, e você pode gerar manualmente quando quiser.
       </div>
 
       <RecurringForm categories={categories} onSubmit={onCreate} submitting={false} />

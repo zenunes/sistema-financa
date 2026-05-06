@@ -58,6 +58,7 @@ function App() {
     toggleRecurringTransaction,
     deleteRecurringTransaction,
     generateRecurringTransactions,
+    isGenerating: generatingRecurring,
   } = useRecurringTransactions(userId)
 
   // Auto-generate recurring transactions on mount
@@ -211,6 +212,7 @@ function App() {
     dueDay: number
     categoryId?: string
     installments?: number
+    startMonth?: string
   }) {
     setError(''); setInfo('')
     try {
@@ -220,6 +222,20 @@ function App() {
       setInfo('Recorrência criada com sucesso.')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao criar recorrência.')
+    }
+  }
+
+  async function handleGenerateRecurringForMonth(month: string) {
+    setError(''); setInfo('')
+    try {
+      const generatedCount = await generateRecurringTransactions(month)
+      setInfo(
+        generatedCount > 0
+          ? `${generatedCount} lançamento(s) recorrente(s) gerado(s) para ${month}.`
+          : `Sem novos lançamentos recorrentes para ${month}.`,
+      )
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erro ao gerar recorrências.')
     }
   }
 
@@ -292,6 +308,9 @@ function App() {
               <RecurringSection
                 categories={categories}
                 recurringTransactions={recurringTransactions}
+                selectedMonth={currentMonth}
+                generating={generatingRecurring}
+                onGenerateMonth={handleGenerateRecurringForMonth}
                 onCreate={handleCreateRecurring}
                 onToggleActive={handleToggleRecurring}
                 onDelete={handleDeleteRecurring}
