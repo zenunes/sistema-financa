@@ -62,12 +62,13 @@ function App() {
 
   // Auto-generate recurring transactions on mount
   useEffect(() => {
-    if (userId && currentMonth) {
-      generateRecurringTransactions(currentMonth).catch((err) => {
+    if (userId) {
+      const autoMonth = new Date().toISOString().slice(0, 7)
+      generateRecurringTransactions(autoMonth).catch((err) => {
         console.error('Failed to auto-generate recurring transactions:', err)
       })
     }
-  }, [userId, currentMonth, generateRecurringTransactions])
+  }, [userId, generateRecurringTransactions])
 
   const isInitialLoading =
     loadingAuth ||
@@ -214,6 +215,8 @@ function App() {
     setError(''); setInfo('')
     try {
       await createRecurringTransaction(params)
+      const autoMonth = new Date().toISOString().slice(0, 7)
+      await generateRecurringTransactions(autoMonth)
       setInfo('Recorrência criada com sucesso.')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao criar recorrência.')
