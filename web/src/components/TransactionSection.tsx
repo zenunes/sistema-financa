@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { Category, Transaction, TransactionType } from '../types/finance'
 import { exportTransactionsCsv, exportTransactionsPdf } from '../lib/export'
+import { maskCurrencyInput } from '../lib/mask'
 import { TransactionForm } from './TransactionForm'
 import { TransactionList } from './TransactionList'
 
@@ -103,7 +104,7 @@ export function TransactionSection({
             submitting={false}
             defaultValues={{
               description: editingTransaction.description,
-              amount: editingTransaction.amount.toString(),
+              amount: maskCurrencyInput(editingTransaction.amount.toFixed(2)),
               type: editingTransaction.type,
               status: editingTransaction.status,
               categoryId: editingTransaction.category_id || undefined,

@@ -1,13 +1,10 @@
 import { useEffect, useState } from 'react'
 
 export function useLocalStorageBoolean(key: string, defaultValue: boolean) {
-  const [value, setValue] = useState(defaultValue)
-
-  useEffect(() => {
+  const [value, setValue] = useState<boolean>(() => {
     const stored = window.localStorage.getItem(key)
-    if (stored === null) return
-    setValue(stored === 'true')
-  }, [key])
+    return stored !== null ? stored === 'true' : defaultValue
+  })
 
   useEffect(() => {
     window.localStorage.setItem(key, value ? 'true' : 'false')

@@ -18,12 +18,10 @@ export function TransactionList({
 }: TransactionListProps) {
   const today = new Date().toISOString().slice(0, 10)
   const sortedTransactions = [...transactions].sort((a, b) => {
-    const aPaid = a.status === 'paid'
-    const bPaid = b.status === 'paid'
-    if (aPaid !== bPaid) return aPaid ? 1 : -1
     return b.transaction_date.localeCompare(a.transaction_date)
   })
-  const firstPaidIndex = sortedTransactions.findIndex((t) => t.status === 'paid')
+  const pendingTransactions = sortedTransactions.filter((t) => t.status === 'pending')
+  const paidTransactions = sortedTransactions.filter((t) => t.status === 'paid')
 
   return (
     <div className="table-wrapper">
@@ -47,7 +45,7 @@ export function TransactionList({
               </td>
             </tr>
           )}
-          {sortedTransactions.slice(0, firstPaidIndex > 0 ? firstPaidIndex : sortedTransactions.length).map((transaction) => {
+          {pendingTransactions.map((transaction) => {
             const isPending = transaction.status === 'pending'
             const isOverdue = isPending && transaction.transaction_date < today
             const isNearDue = isPending && transaction.transaction_date === today
@@ -110,12 +108,12 @@ export function TransactionList({
               </td>
             </tr>
           )})}
-          {firstPaidIndex > 0 && firstPaidIndex < sortedTransactions.length && (
+          {pendingTransactions.length > 0 && paidTransactions.length > 0 && (
             <tr className="table-divider">
               <td colSpan={7}>Pagos</td>
             </tr>
           )}
-          {firstPaidIndex > 0 && sortedTransactions.slice(firstPaidIndex).map((transaction) => {
+          {paidTransactions.map((transaction) => {
             return (
               <tr key={transaction.id} className="row-paid">
                 <td data-label="Descrição">{transaction.description}</td>

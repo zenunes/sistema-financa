@@ -4,6 +4,7 @@ import { useCategories } from './hooks/useCategories'
 import { useGoals } from './hooks/useGoals'
 import { useLocalStorageBoolean } from './hooks/useLocalStorageBoolean'
 import { useRecurringTransactions } from './hooks/useRecurringTransactions'
+import { useQueryClient } from '@tanstack/react-query'
 import { useState, useEffect } from 'react'
 import { AuthView } from './components/AuthView'
 import { CategorySection } from './components/CategorySection'
@@ -20,10 +21,14 @@ import './App.css'
 function App() {
   const { session, loadingAuth, handleLogout } = useAuth()
   const userId = session?.user?.id
+  const queryClient = useQueryClient()
 
   const [error, setError] = useState('')
   const [info, setInfo] = useState('')
-  const [currentMonth, setCurrentMonth] = useState(() => new Date().toISOString().slice(0, 7))
+  const [currentMonth, setCurrentMonth] = useState(() => {
+    const now = new Date()
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
+  })
   const [showGoalAmounts, setShowGoalAmounts] = useLocalStorageBoolean('pf_show_goal_amounts', true)
 
   const {
@@ -64,7 +69,8 @@ function App() {
   // Auto-generate recurring transactions on mount
   useEffect(() => {
     if (userId) {
-      const autoMonth = new Date().toISOString().slice(0, 7)
+      const now = new Date()
+      const autoMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
       generateRecurringTransactions(autoMonth).catch((err) => {
         console.error('Failed to auto-generate recurring transactions:', err)
       })
@@ -78,6 +84,7 @@ function App() {
   async function onLogout() {
     try {
       await handleLogout()
+      queryClient.clear()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao sair.')
     }
@@ -177,18 +184,10 @@ function App() {
   async function handleAddFundsGoal(id: string, amount: number) {
     setError(''); setInfo('')
     try {
-      await addFundsGoal({ id, amount })
-      
       const goal = goals.find((g) => g.id === id)
-      if (goal) {
-        await createTransaction({
-          description: `Depósito: ${goal.title}`,
-          amount,
-          type: 'expense',
-          status: 'paid',
-          transactionDate: new Date().toISOString().slice(0, 10),
-        })
-      }
+      if (!goal) throw new Error('Meta não encontrada.')
+      
+      await addFundsGoal({ id, amount, title: goal.title })
       setInfo('Valor depositado na meta com sucesso.')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao depositar valor na meta.')
@@ -217,7 +216,8 @@ function App() {
     setError(''); setInfo('')
     try {
       await createRecurringTransaction(params)
-      const autoMonth = new Date().toISOString().slice(0, 7)
+      const now = new Date()
+      const autoMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
       await generateRecurringTransactions(autoMonth)
       setInfo('Recorrência criada com sucesso.')
     } catch (err) {

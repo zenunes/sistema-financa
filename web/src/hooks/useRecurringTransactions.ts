@@ -82,21 +82,25 @@ export async function generateRecurringTransactionsForMonth(userId: string, mont
   const { error: insertError } = await supabase.from('transactions').insert(inserts)
   if (insertError) throw new Error(`Falha ao inserir os novos lançamentos recorrentes: ${insertError.message}`)
 
-  // Incrementar parcelas geradas e desativar se atingiu o limite
-  for (const item of toGenerate) {
-    if (item.installments) {
-      const newGenerated = item.generated_installments + 1
-      const active = newGenerated < item.installments
-      
-      await supabase
-        .from('recurring_transactions')
-        .update({ 
-          generated_installments: newGenerated,
-          active 
-        })
-        .eq('id', item.id)
-    }
-  }
+  // Incrementar parcelas geradas e desativar se atingiu o limite de forma concorrente
+  await Promise.all(
+    toGenerate.map(async (item) => {
+      if (item.installments) {
+        const newGenerated = item.generated_installments + 1
+        const active = newGenerated < item.installments
+        
+        const { error: updateError } = await supabase
+          .from('recurring_transactions')
+          .update({ 
+            generated_installments: newGenerated,
+            active 
+          })
+          .eq('id', item.id)
+        
+        if (updateError) throw new Error(`Falha ao atualizar parcelas da recorrência: ${updateError.message}`)
+      }
+    })
+  )
 
   return inserts.length
 }
@@ -147,17 +151,7 @@ export function useRecurringTransactions(userId: string | undefined) {
       } as any
 
       const { error } = await supabase.from('recurring_transactions').insert(payloadWithStart)
-      if (!error) return
-
-      const message = error.message ?? ''
-      const isMissingColumn = /start_month/i.test(message) && /column|does not exist|schema cache/i.test(message)
-      if (!isMissingColumn) throw new Error(message)
-
-      const payloadWithoutStart = { ...payloadWithStart }
-      delete payloadWithoutStart.start_month
-
-      const { error: fallbackError } = await supabase.from('recurring_transactions').insert(payloadWithoutStart)
-      if (fallbackError) throw new Error(fallbackError.message)
+      if (error) throw new Error(error.message)
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: financeKeys.recurring(userId) })

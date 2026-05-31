@@ -55,27 +55,23 @@ export function useGoals(userId: string | undefined) {
   })
 
   const addFundsMutation = useMutation({
-    mutationFn: async ({ id, amount }: { id: string; amount: number }) => {
-      // Obter meta atual
-      const { data: goalData, error: fetchError } = await supabase
-        .from('goals')
-        .select('current_amount')
-        .eq('id', id)
-        .single()
+    mutationFn: async ({ id, amount, title }: { id: string; amount: number; title: string }) => {
+      const now = new Date()
+      const localDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
 
-      if (fetchError) throw new Error(`Falha ao buscar meta: ${fetchError.message}`)
+      const { error } = await supabase.rpc('deposit_to_goal_transactional', {
+        p_goal_id: id,
+        p_user_id: userId!,
+        p_amount: amount,
+        p_description: `Depósito: ${title}`,
+        p_date: localDate,
+      })
 
-      const newAmount = Number(goalData.current_amount) + amount
-
-      const { error: updateError } = await supabase
-        .from('goals')
-        .update({ current_amount: newAmount })
-        .eq('id', id)
-
-      if (updateError) throw new Error(updateError.message)
+      if (error) throw new Error(error.message)
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: financeKeys.goals(userId) })
+      queryClient.invalidateQueries({ queryKey: financeKeys.transactions(userId) })
     },
   })
 
